@@ -1,9 +1,9 @@
+server:
+  port: 8090
+
 spring:
-  datasource:
-    driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://localhost:3306/toyproject
-    username: root
-    password: 123
+  profiles:
+    include: secret
 
   #spring.jpa.hibernate.ddl-auto: ??? ??? ??? ??? ???? ???? ???? ?????.
   jpa:
@@ -18,10 +18,12 @@ spring:
 
     show-sql: true
 
-#      hibernate:
-#        jdbc:
-#          time_zone: UTC
-#        format_sql: true
-#        highlight_sql: true
-#        default_batch_fetch_size: 100
-#        generate_statistics: false
+  # Message settings
+  messages:
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
+
+springdoc:
+  swagger-ui:
+    query-config-enabled: false

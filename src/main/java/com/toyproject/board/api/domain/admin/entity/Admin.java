@@ -1,7 +1,8 @@
-package com.toyproject.board.api.domain.admin;
+package com.toyproject.board.api.domain.admin.entity;
 
 import com.toyproject.board.api.domain.base.DefaultTimeStampEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,4 +32,24 @@ public class Admin extends DefaultTimeStampEntity {
 
     @Column(name = "phone", columnDefinition = "VARCHAR(20) NOT NULL COMMENT '핸드폰'")
     private String phone;
+
+    /**
+     * 관리자 생성,수정 생성자
+     * @param name      이름
+     * @param userId    아이디
+     * @param password 비밀번호
+     * @param email     이메일
+     * @param phone     전화번호
+     */
+    public Admin(String name, String userId, String password, String email, String phone) {
+        this.name = name;
+        this.userId = userId;
+        this.password = password;
+        this.email = email;
+        this.phone = phone;
+    }
+
+    public static Admin of(String name, String userId, String password, String email, String phone) {
+        return new Admin(name, userId, password, email, phone);
+    }
 }
