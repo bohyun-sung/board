@@ -31,3 +31,14 @@ springdoc:
 jwt:
   secret: toyproject-secret-key-1234567890-abcdefg
   token-validity: 3600000 # 1시간
+
+logbook:
+  filter:
+    enabled: false
+
+logging:
+  level:
+    root: info
+    org.zalando.logbook: trace
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace

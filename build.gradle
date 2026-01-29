@@ -2,6 +2,9 @@ buildscript {
 	ext {
 		queryDslVersion = "5.1.0"
 		springDocVersion = "2.3.0"
+		logbookVersion = "3.7.2"
+		servletVersion = "6.0.0"
+		jsonwebtokenVersion = "0.11.5"
 	}
 }
 
@@ -37,12 +40,15 @@ dependencies {
 //	implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-client'
 
 	// JWT
-	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	implementation "io.jsonwebtoken:jjwt-api:${jsonwebtokenVersion}"
 
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
 	// servlet
-	implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+	implementation "jakarta.servlet:jakarta.servlet-api:${servletVersion}"
+
+	//logbook
+	implementation "org.zalando:logbook-spring-boot-starter:${logbookVersion}"
 
 	//swagger
 	implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}"
