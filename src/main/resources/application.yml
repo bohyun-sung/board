@@ -11,6 +11,7 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       ddl-auto: none
+      dialect: org.hibernate.dialect.MariaDBDialect
 
     #spring.jpa.properties.hibernate.format_sql: Hibernate ?? ? SQL ??? ??, ???? ?? ??? ?? ?? ???
     properties:
@@ -47,3 +48,5 @@ logging:
     org.hibernate.type: trace
     org.hibernate.orm.jdbc.bind: trace
     org.springframework.security: debug
+    com.zaxxer.hikari: DEBUG
+    com.zaxxer.hikari.HikariConfig: DEBUG

@@ -2,12 +2,14 @@ package com.toyproject.board.api.config.properties;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
 
+@Slf4j
 @Component
 public class JwtTokenProperty {
 
@@ -38,7 +40,7 @@ public class JwtTokenProperty {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
-                .parseClaimsJwt(token)
+                .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
     }
@@ -48,16 +50,16 @@ public class JwtTokenProperty {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (SecurityException | MalformedJwtException e) {
-            // 잘못된 서명이거나 토큰 형식이 잘못된 경우
+            log.info("잘못된 서명이거나 토큰 형식이 잘못된 경우");
             return false;
         } catch (ExpiredJwtException e) {
-            // 토큰이 만료된 경우
+            log.info("토큰이 만료된 경우");
             return false;
         } catch (UnsupportedJwtException e) {
-            // 지원되지 않는 토큰인 경우
+            log.info("지원되지 않는 토큰인 경우");
             return false;
         } catch (IllegalArgumentException e) {
-            // 토큰이 비어있거나 잘못된 경우
+            log.info("토큰이 비어있거나 잘못된 경우");
             return false;
         }
     }
