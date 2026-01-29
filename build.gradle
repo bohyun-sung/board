@@ -73,6 +73,9 @@ dependencies {
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	runtimeOnly "io.jsonwebtoken:jjwt-impl:${jsonwebtokenVersion}"
+	runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jsonwebtokenVersion}"
 }
 
 tasks.named('bootBuildImage') {

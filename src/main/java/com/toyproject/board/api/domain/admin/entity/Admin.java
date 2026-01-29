@@ -5,12 +5,19 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "admin")
 @Entity
-public class Admin extends DefaultTimeStampEntity {
+public class Admin extends DefaultTimeStampEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,15 +51,42 @@ public class Admin extends DefaultTimeStampEntity {
      * @param email     이메일
      * @param phone     전화번호
      */
-    public Admin(String name, String userId, String password, String email, String phone) {
+    public Admin(String name, String userId, String password, String email, String phone, String role) {
         this.name = name;
         this.userId = userId;
         this.password = password;
         this.email = email;
         this.phone = phone;
+        this.role = role;
     }
 
-    public static Admin of(String name, String userId, String password, String email, String phone) {
-        return new Admin(name, userId, password, email, phone);
+    public static Admin of(String name, String userId, String password, String email, String phone, String role) {
+        return new Admin(name, userId, password, email, phone, role);
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + this.role));
+    }
+
+    @Override
+    public String getUsername() {
+        return this.userId;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() { return true; }
+
+    @Override
+    public boolean isAccountNonLocked() { return true; }
+
+    @Override
+    public boolean isCredentialsNonExpired() { return true; }
+
+    @Override
+    public boolean isEnabled() { return true; }
+
+    public void updatePassword(String modifyPassword) {
+        this.password = modifyPassword;
     }
 }

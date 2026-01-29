@@ -32,7 +32,8 @@ public record AdminCreateReq(
                         this.userId,
                         this.password,
                         this.email,
-                        this.phone
+                        this.phone,
+                        "ADMIN"
                 );
         }
 }

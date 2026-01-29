@@ -49,17 +49,6 @@ public class AdminController {
         );
     }
 
-    @PostMapping
-    @Operation(summary = "관리자 계정 생성", description = "신규 계정 생성")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "계정 생성 성공"),
-            @ApiResponse(responseCode = "400", description = "중복 아이디")
-    })
-    public Response<Void> createAdmin(@Valid @RequestBody AdminCreateReq req) {
-        adminService.createAdmin(req);
-        return Response.success();
-    }
-
     @GetMapping("/my-info")
     public ResponseEntity<?> getMyInfo(@AuthenticationPrincipal UserDetails userDetails) {
         String userId = userDetails.getUsername(); // 현재 로그인한 ID
