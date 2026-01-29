@@ -1,5 +1,6 @@
 package com.toyproject.board.api.service.admin;
 
+import com.toyproject.board.api.domain.admin.entity.Admin;
 import com.toyproject.board.api.domain.admin.repository.AdminRepository;
 import com.toyproject.board.api.dto.admin.AdminDto;
 import com.toyproject.board.api.dto.admin.request.AdminCreateReq;
@@ -24,6 +25,7 @@ public class AdminService {
     public void createAdmin(AdminCreateReq req) {
 
         // 아이디 중복 체크
+        Boolean b = adminRepository.existsByUserId(req.userId());
 
         // 비밀번호 암호화
 

@@ -1,8 +1,6 @@
 package com.toyproject.board.api.domain.admin.repository.querydsl.impl;
 
-import ch.qos.logback.core.util.StringUtil;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.toyproject.board.api.domain.admin.entity.Admin;
@@ -15,7 +13,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.List;
 
-import static ch.qos.logback.core.util.StringUtil.*;
+import static ch.qos.logback.core.util.StringUtil.notNullNorEmpty;
 
 @RequiredArgsConstructor
 public class AdminRepositoryCustomImpl implements AdminRepositoryCustom {

@@ -1,7 +1,10 @@
 package com.toyproject.board.api.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)

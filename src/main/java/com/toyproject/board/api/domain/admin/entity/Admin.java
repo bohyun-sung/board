@@ -2,7 +2,6 @@ package com.toyproject.board.api.domain.admin.entity;
 
 import com.toyproject.board.api.domain.base.DefaultTimeStampEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,6 +31,10 @@ public class Admin extends DefaultTimeStampEntity {
 
     @Column(name = "phone", columnDefinition = "VARCHAR(20) NOT NULL COMMENT '핸드폰'")
     private String phone;
+
+
+    @Column(name = "role", columnDefinition = "")
+    private String role;
 
     /**
      * 관리자 생성,수정 생성자
