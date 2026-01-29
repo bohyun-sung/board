@@ -1,15 +1,11 @@
 package com.toyproject.board.api.controller.admin;
 
 import com.toyproject.board.api.config.Response;
-import com.toyproject.board.api.dto.admin.request.AdminCreateReq;
 import com.toyproject.board.api.dto.admin.request.AdminSearchAdminReq;
 import com.toyproject.board.api.dto.admin.response.AdminSearchAdminRes;
 import com.toyproject.board.api.service.admin.AdminService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
@@ -20,7 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 
@@ -37,7 +36,7 @@ public class AdminController {
     public Response<Page<AdminSearchAdminRes>> searchAdmin(
             @ModelAttribute AdminSearchAdminReq req,
             @ParameterObject
-            @PageableDefault(size = 10, sort = "rgdt", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(sort = "rgdt", direction = Sort.Direction.DESC) Pageable pageable
             ) {
         return Response.success(
                 adminService.searchAdmin(

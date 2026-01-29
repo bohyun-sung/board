@@ -11,7 +11,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -40,7 +39,7 @@ public class Admin extends DefaultTimeStampEntity implements UserDetails {
     private String phone;
 
 
-    @Column(name = "role", columnDefinition = "")
+    @Column(name = "role", columnDefinition = "VARCHAR(10) NOT NULL COMMENT '관리등급'")
     private String role;
 
     /**

@@ -2,19 +2,16 @@ package com.toyproject.board.api.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 import org.zalando.logbook.*;
 import org.zalando.logbook.core.CurlHttpLogFormatter;
-import org.zalando.logbook.core.DefaultHttpLogFormatter;
 import org.zalando.logbook.core.DefaultHttpLogWriter;
 import org.zalando.logbook.core.DefaultSink;
 import org.zalando.logbook.json.JsonBodyFilters;
 import org.zalando.logbook.json.JsonHttpLogFormatter;
-import org.zalando.logbook.servlet.LogbookFilter;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.Set;
 
@@ -65,13 +62,17 @@ public class LogbookConfig {
         }
 
         @Override
-        public String format(Precorrelation precorrelation, HttpRequest request) throws IOException {
+        public String format(
+                @Nonnull Precorrelation precorrelation,
+                @Nonnull HttpRequest request) throws IOException {
             // 요청은 cURL 명령어로 출력해서 바로 복사해서 쓸 수 있게 함
             return "\n[REQUEST]\n" + curlFormatter.format(precorrelation, request);
         }
 
         @Override
-        public String format(Correlation correlation, HttpResponse response) throws IOException {
+        public String format(
+                Correlation correlation,
+                @Nonnull HttpResponse response) throws IOException {
             // 응답은 예쁜 JSON과 실행 시간(ms)을 포함
             return String.format("\n[RESPONSE] ID: %s | Duration: %dms\n%s",
                     correlation.getId(),
