@@ -1,6 +1,7 @@
 package com.toyproject.board.api.dto.admin.request;
 
 import com.toyproject.board.api.domain.admin.entity.Admin;
+import com.toyproject.board.api.enums.coverter.RoleType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
@@ -33,7 +34,7 @@ public record AdminCreateReq(
                         this.password,
                         this.email,
                         this.phone,
-                        "ADMIN"
+                        RoleType.ADMIN
                 );
         }
 }

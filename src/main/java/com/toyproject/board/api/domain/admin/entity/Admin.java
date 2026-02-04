@@ -1,6 +1,7 @@
 package com.toyproject.board.api.domain.admin.entity;
 
 import com.toyproject.board.api.domain.base.DefaultTimeStampEntity;
+import com.toyproject.board.api.enums.coverter.RoleType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -14,7 +15,10 @@ import java.util.Collections;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "admin")
+@Table(name = "admin", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id"}),
+        @UniqueConstraint(columnNames = {"email"})
+})
 @Entity
 public class Admin extends DefaultTimeStampEntity implements UserDetails {
 
@@ -23,24 +27,24 @@ public class Admin extends DefaultTimeStampEntity implements UserDetails {
     @Column(name = "admin_idx", columnDefinition = "BIGINT UNSIGNED")
     private Long idx;
 
-    @Column(name = "name", columnDefinition = "VARCHAR(20) NOT NULL COMMENT '이름'")
+    @Column(name = "name", nullable = false, length = 20)
     private String name;
 
-    @Column(name = "user_id", columnDefinition = "VARCHAR(100) NOT NULL COMMENT '아이디'")
+    @Column(name = "user_id", nullable = false, length = 100)
     private String userId;
 
-    @Column(name = "password", columnDefinition = "VARCHAR(100) NOT NULL COMMENT '비밀번호'")
+    @Column(name = "password", nullable = false, length = 100)
     private String password;
 
-    @Column(name = "email", columnDefinition = "VARCHAR(100) NOT NULL COMMENT '이메일'")
+    @Column(name = "email", nullable = false, length = 100)
     private String email;
 
-    @Column(name = "phone", columnDefinition = "VARCHAR(20) NOT NULL COMMENT '핸드폰'")
+    @Column(name = "phone", nullable = false, length = 20)
     private String phone;
 
-
-    @Column(name = "role", columnDefinition = "VARCHAR(10) NOT NULL COMMENT '관리등급'")
-    private String role;
+    @Column(name = "role_type", nullable = false)
+    @Convert(converter = RoleType.Converter.class)
+    private RoleType roleType;
 
     /**
      * 관리자 생성,수정 생성자
@@ -50,22 +54,25 @@ public class Admin extends DefaultTimeStampEntity implements UserDetails {
      * @param email     이메일
      * @param phone     전화번호
      */
-    public Admin(String name, String userId, String password, String email, String phone, String role) {
+    public Admin(String name, String userId, String password, String email, String phone, RoleType roleType) {
         this.name = name;
         this.userId = userId;
         this.password = password;
         this.email = email;
         this.phone = phone;
-        this.role = role;
+        this.roleType = roleType;
     }
 
-    public static Admin of(String name, String userId, String password, String email, String phone, String role) {
-        return new Admin(name, userId, password, email, phone, role);
+    public static Admin of(String name, String userId, String password, String email, String phone, RoleType roleType) {
+        return new Admin(name, userId, password, email, phone, roleType);
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + this.role));
+        if (this.roleType == null) {
+            return Collections.emptyList();
+        }
+        return Collections.singletonList(new SimpleGrantedAuthority(this.roleType.getKey()));
     }
 
     @Override

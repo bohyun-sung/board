@@ -26,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
         List<GrantedAuthority> authorities = Collections.singletonList(
-                new SimpleGrantedAuthority("ROLE_" + admin.getRole())
+                new SimpleGrantedAuthority(admin.getRoleType().getKey())
         );
 
         return new User(

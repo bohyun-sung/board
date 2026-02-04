@@ -1,6 +1,7 @@
 package com.toyproject.board.api.controller.admin;
 
 import com.toyproject.board.api.config.Response;
+import com.toyproject.board.api.dto.admin.AdminDto;
 import com.toyproject.board.api.dto.admin.request.AdminSearchAdminReq;
 import com.toyproject.board.api.dto.admin.response.AdminSearchAdminRes;
 import com.toyproject.board.api.service.admin.AdminService;
@@ -35,17 +36,12 @@ public class AdminController {
     @Operation(summary = "관리자 검색", description = "핸드폰, 이름, 이메일 검색")
     public Response<Page<AdminSearchAdminRes>> searchAdmin(
             @ModelAttribute AdminSearchAdminReq req,
-            @ParameterObject
-            @PageableDefault(sort = "rgdt", direction = Sort.Direction.DESC) Pageable pageable
+            @ParameterObject @PageableDefault(sort = "rgdt", direction = Sort.Direction.DESC) Pageable pageable
             ) {
-        return Response.success(
-                adminService.searchAdmin(
-                        req.getPhone(),
-                        req.getName(),
-                        req.getEmail(),
-                        pageable
-                ).map(AdminSearchAdminRes::from)
-        );
+
+        Page<AdminDto> adminPage = adminService.searchAdmin(req, pageable);
+
+        return Response.success(adminPage.map(AdminSearchAdminRes::from));
     }
 
     @GetMapping("/my-info")
