@@ -45,6 +45,7 @@ public class Post extends DefaultTimeStampEntity {
 
 
     @Builder
+    @SuppressWarnings("unsed")
     public Post(String title, String content, BoardType boardType, RoleType roleType, Admin adminWriterIdx) {
         this.title = title;
         this.content = content;
