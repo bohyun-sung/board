@@ -1,4 +1,4 @@
-package com.toyproject.board.api.domain.post;
+package com.toyproject.board.api.domain.post.entity;
 
 import com.toyproject.board.api.domain.admin.entity.Admin;
 import com.toyproject.board.api.domain.base.DefaultTimeStampEntity;
@@ -45,11 +45,9 @@ public class Post extends DefaultTimeStampEntity {
 
 
     @Builder
-    public Post(Long idx, String title, String content, Integer viewCount, BoardType boardType, RoleType roleType, Admin adminWriterIdx) {
-        this.idx = idx;
+    public Post(String title, String content, BoardType boardType, RoleType roleType, Admin adminWriterIdx) {
         this.title = title;
         this.content = content;
-        this.viewCount = viewCount;
         this.boardType = boardType;
         this.roleType = roleType;
         this.adminWriterIdx = adminWriterIdx;
