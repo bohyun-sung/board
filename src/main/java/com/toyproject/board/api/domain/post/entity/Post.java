@@ -52,4 +52,8 @@ public class Post extends DefaultTimeStampEntity {
         this.roleType = roleType;
         this.adminWriterIdx = adminWriterIdx;
     }
+
+    public void increaseViewCount() {
+        this.viewCount ++;
+    }
 }

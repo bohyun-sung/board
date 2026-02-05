@@ -8,13 +8,15 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class AdminLoginDto {
 
-    private final Long idx;
+    private final Long adminIdx;
+
     private final String userId;
+
     private final String token;
 
-    public static AdminLoginDto from(Long idx, String userId, String token) {
+    public static AdminLoginDto from(Long adminIdx, String userId, String token) {
         return new AdminLoginDto(
-                idx,
+                adminIdx,
                 userId,
                 token
         );

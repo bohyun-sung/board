@@ -25,18 +25,18 @@ public class authorizationController {
 
     private final AuthorizationService authorizationService;
 
-    @PostMapping("/login/admin")
     @Operation(summary = "관리자 계정 로그인", description = "관리자 로그인")
+    @PostMapping("/login/admin")
     public Response<AdminLoginRes> loginAdmin(@Validated @RequestBody AdminLoginReq req) {
         return Response.success(AdminLoginRes.from(authorizationService.loginAdmin(req)));
     }
 
-    @PostMapping("/create/admin")
     @Operation(summary = "관리자 계정 생성", description = "신규 계정 생성")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "계정 생성 성공"),
             @ApiResponse(responseCode = "400", description = "중복 아이디")
     })
+    @PostMapping("/create/admin")
     public Response<Void> createAdmin(@Valid @RequestBody AdminCreateReq req) {
         authorizationService.createAdmin(req);
         return Response.success();
