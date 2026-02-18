@@ -1,7 +1,7 @@
 buildscript {
 	ext {
 		queryDslVersion = "5.1.0"
-		springDocVersion = "2.3.0"
+		springDocVersion = "2.8.5"
 		logbookVersion = "3.7.2"
 		servletVersion = "6.0.0"
 		jsonwebtokenVersion = "0.11.5"

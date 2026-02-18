@@ -33,13 +33,13 @@ public class PostController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content)
     })
     @GetMapping("/{postIdx}")
-    public Response<PostShowRes> showPost(@PathVariable Long postIdx) throws BadRequestException {
+    public Response<PostShowRes> showPost(@PathVariable Long postIdx) {
         return Response.success(PostShowRes.from(postService.showPost(postIdx)));
     }
 
     @Operation(summary = "게시물 작성", description = "게시물 작성")
     @PostMapping
-    public Response<Void> createPost(PostCreateReq req) throws BadRequestException {
+    public Response<Void> createPost(PostCreateReq req) {
         postService.createPost(req);
         return Response.success();
     }

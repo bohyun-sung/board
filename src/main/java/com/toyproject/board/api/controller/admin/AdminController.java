@@ -32,8 +32,8 @@ public class AdminController {
 
     private final AdminService adminService;
 
-    @GetMapping
     @Operation(summary = "관리자 검색", description = "핸드폰, 이름, 이메일 검색")
+    @GetMapping
     public Response<Page<AdminSearchAdminRes>> searchAdmin(
             @ModelAttribute AdminSearchAdminReq req,
             @ParameterObject @PageableDefault(sort = "rgdt", direction = Sort.Direction.DESC) Pageable pageable
