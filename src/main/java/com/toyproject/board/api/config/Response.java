@@ -9,11 +9,14 @@ import lombok.NoArgsConstructor;
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@AllArgsConstructor
 public class Response <T>{
 
     private final boolean result = true;
     private T data;
+
+    public Response(T data) {
+        this.data = data;
+    }
 
     public static Response<Void> success() {
         return new Response<>(null);
