@@ -1,17 +1,26 @@
-package com.toyproject.board.api.service.s3;
+package com.toyproject.board.api.service.upload;
 
 import com.toyproject.board.api.config.exception.ClientException;
 import com.toyproject.board.api.config.exception.ServerException;
+import com.toyproject.board.api.domain.upload.entity.Uploads;
+import com.toyproject.board.api.domain.upload.repository.UploadsRepository;
+import com.toyproject.board.api.dto.upload.UploadsDto;
+import com.toyproject.board.api.dto.upload.response.UploadsRes;
 import com.toyproject.board.api.enums.ExceptionType;
+import com.toyproject.board.api.enums.UploadType;
 import io.awspring.cloud.s3.S3Resource;
 import io.awspring.cloud.s3.S3Template;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -32,6 +41,8 @@ public class S3Service {
 
     private final S3Template s3Template;
 
+    private final UploadsRepository uploadsRepository;
+
     private static final String DATE_FORMAT = "yyyyMMddHHmmss";
 
     private static final List<String> ALLOWED_EXTENSIONS =
@@ -43,19 +54,32 @@ public class S3Service {
     @Value("${spring.cloud.aws.s3.bucket}")
     private String bucketName;
 
+
     /**
      * 다중 업로드
      *
      * @param files 업로드 파일
      * @return 업로드 URL
      */
-    public List<String> uploadMultipleFiles(List<MultipartFile> files) {
-        if (files == null || files.isEmpty()) return Collections.emptyList();
+    @Transactional
+    public List<UploadsRes> uploadMultipleFiles(List<MultipartFile> files, UploadType uploadType) {
 
-        return files.parallelStream()
+        List<UploadsDto> uploadsDtos = files.parallelStream()
                 .filter(file -> !file.isEmpty())
-                .map(this::upload)
-                .collect(Collectors.toList());
+                .map(file -> upload(file, uploadType))
+                .toList();
+
+        List<Uploads> uploadsList = uploadsDtos.stream()
+                .map(UploadsDto::toEntity)
+                .toList();
+
+        List<Uploads> uploadsSaveData = uploadsRepository.saveAll(uploadsList);
+
+        return uploadsSaveData.stream()
+                .map(UploadsRes::from)
+                .toList();
+
+
     }
 
     /**
@@ -76,16 +100,24 @@ public class S3Service {
      * @param file 업로드 파일
      * @return 업로드된 url
      */
-    private String upload(MultipartFile file) {
+    private UploadsDto upload(MultipartFile file, UploadType uploadType) {
         validateFile(file);
 
-        String originalName = Objects.requireNonNull(file.getOriginalFilename());
+        String originalName = Normalizer.normalize(Objects.requireNonNull(file.getOriginalFilename()), Normalizer.Form.NFC);
         String fileName = generateS3Key(originalName);
 
         try (InputStream inputStream = file.getInputStream()) {
             S3Resource s3Resource = s3Template.upload(bucketName, fileName, inputStream);
             log.debug("Successfully uploaded to S3: {}", fileName);
-            return s3Resource.getURL().toString();
+
+            return UploadsDto.builder()
+                    .uploadUrl(s3Resource.getURL().toString())
+                    .thumbnailUrl(uploadThumbnail(file))
+                    .uploadType(uploadType)
+                    .fileSize(file.getSize())
+                    .extension(StringUtils.getFilenameExtension(file.getOriginalFilename()))
+                    .build();
+
         } catch (IOException e) {
             log.error("S3 upload failed for file: {}", originalName, e);
             throw new ServerException(ExceptionType.INTERNAL_SERVER_ERROR,
@@ -162,6 +194,33 @@ public class S3Service {
         String extension = StringUtils.getFilenameExtension(file.getOriginalFilename());
         if (extension == null || !ALLOWED_EXTENSIONS.contains(extension.toLowerCase())) {
             throw new ClientException(ExceptionType.BAD_REQUEST, "허용되지않는 파일 형식입니다.");
+        }
+    }
+
+    /**
+     * 업로드 파일 썸네일 생성
+     * @param file 업로드 파일
+     * @return 썸내일 url
+     */
+    private String uploadThumbnail(MultipartFile file) {
+        String thumbName = "s_" + generateS3Key(file.getOriginalFilename());
+
+        try (InputStream inputStream = file.getInputStream();
+             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()){
+
+            Thumbnails.of(inputStream)
+                    .size(200, 200)
+                    .outputFormat("jpg")
+                    .toOutputStream(byteArrayOutputStream);
+
+            byte[] bytes = byteArrayOutputStream.toByteArray();
+            try (ByteArrayInputStream thumbInputStream = new ByteArrayInputStream(bytes)){
+                S3Resource s3Resource = s3Template.upload(bucketName, thumbName, thumbInputStream);
+                return s3Resource.getURL().toString();
+            }
+        } catch (IOException e) {
+            log.error("썸네일 생성 실패", e);
+            return null;
         }
     }
 }

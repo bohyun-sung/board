@@ -3,7 +3,7 @@ package com.toyproject.board.api.utill;
 import com.toyproject.board.api.config.exception.ClientException;
 import com.toyproject.board.api.dto.users.UserPrincipal;
 import com.toyproject.board.api.enums.ExceptionType;
-import com.toyproject.board.api.enums.coverter.RoleType;
+import com.toyproject.board.api.enums.RoleType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 

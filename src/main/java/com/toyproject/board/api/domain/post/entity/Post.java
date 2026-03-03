@@ -3,7 +3,7 @@ package com.toyproject.board.api.domain.post.entity;
 import com.toyproject.board.api.domain.admin.entity.Admin;
 import com.toyproject.board.api.domain.base.DefaultTimeStampEntity;
 import com.toyproject.board.api.enums.BoardType;
-import com.toyproject.board.api.enums.coverter.RoleType;
+import com.toyproject.board.api.enums.RoleType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

@@ -1,6 +1,6 @@
-package com.toyproject.board.api.enums.coverter;
+package com.toyproject.board.api.enums;
 
-import com.toyproject.board.api.enums.BaseEnum;
+import com.toyproject.board.api.enums.coverter.BaseEnumAttributeConverter;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

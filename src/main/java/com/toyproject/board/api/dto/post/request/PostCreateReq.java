@@ -3,7 +3,7 @@ package com.toyproject.board.api.dto.post.request;
 import com.toyproject.board.api.domain.admin.entity.Admin;
 import com.toyproject.board.api.domain.post.entity.Post;
 import com.toyproject.board.api.enums.BoardType;
-import com.toyproject.board.api.enums.coverter.RoleType;
+import com.toyproject.board.api.enums.RoleType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -1,7 +1,7 @@
 package com.toyproject.board.api.dto.users;
 
 import com.toyproject.board.api.domain.admin.entity.Admin;
-import com.toyproject.board.api.enums.coverter.RoleType;
+import com.toyproject.board.api.enums.RoleType;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -9,7 +9,7 @@ import com.toyproject.board.api.dto.post.PostDTO;
 import com.toyproject.board.api.dto.post.request.PostCreateReq;
 import com.toyproject.board.api.dto.post.request.PostUpdateReq;
 import com.toyproject.board.api.enums.ExceptionType;
-import com.toyproject.board.api.enums.coverter.RoleType;
+import com.toyproject.board.api.enums.RoleType;
 import com.toyproject.board.api.utill.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
