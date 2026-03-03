@@ -57,4 +57,10 @@ public class Post extends DefaultTimeStampEntity {
     public void increaseViewCount() {
         this.viewCount ++;
     }
+
+    public void update(String title, String content, BoardType boardType) {
+        this.title = title;
+        this.content = content;
+        this.boardType = boardType;
+    }
 }

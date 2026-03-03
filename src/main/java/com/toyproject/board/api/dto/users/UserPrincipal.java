@@ -12,7 +12,7 @@ import java.util.Collection;
 public class UserPrincipal implements UserDetails {
     private final Long idx;
     private final String userId;
-    private final String passwoord;
+    private final String password;
     private final String email;
     private final RoleType roleType;
     Collection<? extends GrantedAuthority> authorities;
@@ -20,7 +20,7 @@ public class UserPrincipal implements UserDetails {
     public UserPrincipal(Admin admin) {
         this.idx = admin.getIdx();
         this.userId = admin.getUserId();
-        this.passwoord = admin.getPassword();
+        this.password = admin.getPassword();
         this.email = admin.getEmail();
         this.authorities = admin.getAuthorities();
         this.roleType = admin.getRoleType();
@@ -33,7 +33,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public String getPassword() {
-        return passwoord;
+        return password;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.toyproject.board.api.controller.post;
 
 import com.toyproject.board.api.config.Response;
 import com.toyproject.board.api.dto.post.request.PostCreateReq;
+import com.toyproject.board.api.dto.post.request.PostUpdateReq;
 import com.toyproject.board.api.dto.post.response.PostShowRes;
 import com.toyproject.board.api.service.post.PostService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,8 +12,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "[02] 게시판")
@@ -39,8 +40,22 @@ public class PostController {
 
     @Operation(summary = "게시물 작성", description = "게시물 작성")
     @PostMapping
-    public Response<Void> createPost(PostCreateReq req) {
+    public Response<Void> createPost(@RequestBody @Valid PostCreateReq req) {
         postService.createPost(req);
+        return Response.success();
+    }
+
+    @Operation(summary = "게시물 수정", description = "게시물 수정")
+    @PatchMapping
+    public Response<Void> updatePost(@RequestBody @Valid PostUpdateReq req) {
+        postService.updatePost(req);
+        return Response.success();
+    }
+
+    @Operation(summary = "게시물 삭제", description = "게시물 삭제")
+    @DeleteMapping
+    public Response<Void> deletePost(@PathVariable Long postIdx) {
+        postService.deletePost(postIdx);
         return Response.success();
     }
 }
