@@ -4,7 +4,6 @@ import com.toyproject.board.api.config.Response;
 import com.toyproject.board.api.dto.post.request.PostCreateReq;
 import com.toyproject.board.api.dto.post.request.PostUpdateReq;
 import com.toyproject.board.api.dto.post.response.PostShowRes;
-import com.toyproject.board.api.dto.upload.UploadsDto;
 import com.toyproject.board.api.dto.upload.response.UploadsRes;
 import com.toyproject.board.api.enums.UploadType;
 import com.toyproject.board.api.service.post.PostService;

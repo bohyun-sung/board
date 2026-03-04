@@ -14,14 +14,14 @@ import java.util.List;
 public class PostDTO {
 
     private final Long idx;
-    private String title;
-    private String content;
-    private Integer viewCount;
-    private BoardType boardType;
-    private RoleType roleType;
-    private Admin adminWriterIdx;
-    private LocalDateTime rgdt;
-    private LocalDateTime updt;
+    private final String title;
+    private final String content;
+    private final Integer viewCount;
+    private final BoardType boardType;
+    private final RoleType roleType;
+    private final Admin adminWriterIdx;
+    private final LocalDateTime rgdt;
+    private final LocalDateTime updt;
     private List<UploadsShowDto> uploads;
 
 
