@@ -5,6 +5,8 @@ import com.toyproject.board.api.domain.admin.entity.Admin;
 import com.toyproject.board.api.domain.admin.repository.AdminRepository;
 import com.toyproject.board.api.domain.post.entity.Post;
 import com.toyproject.board.api.domain.post.repository.PostRepository;
+import com.toyproject.board.api.domain.upload.entity.Uploads;
+import com.toyproject.board.api.domain.upload.repository.UploadsRepository;
 import com.toyproject.board.api.dto.post.PostDTO;
 import com.toyproject.board.api.dto.post.request.PostCreateReq;
 import com.toyproject.board.api.dto.post.request.PostUpdateReq;
@@ -15,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
@@ -22,6 +26,7 @@ public class PostService {
 
     private final AdminRepository adminRepository;
     private final PostRepository postRepository;
+    private final UploadsRepository uploadsRepository;
 
     @Transactional
     public PostDTO showPost(Long postIdx) {
@@ -32,13 +37,23 @@ public class PostService {
 
     @Transactional
     public void createPost(PostCreateReq req) {
+        // 작성자 정보 확인
         Long currentMemberIdx = SecurityUtil.getCurrentMemberIdx();
         RoleType currentRoleType = SecurityUtil.getCurrentRoleType();
 
-        Admin admin = adminRepository.getReferenceById(currentMemberIdx);
-        Post entity = req.toEntity(admin, currentRoleType);
+        //TODO 유저일때 처리
+        Admin admin = adminRepository.findById(currentMemberIdx)
+                .orElseThrow(() -> new ClientException(ExceptionType.NOT_FOUND, "존재하지않는 관리자 입니다"));
 
-        postRepository.save(entity);
+        // 게시물 저장
+        Post savePostData = postRepository.save(req.toEntity(admin, currentRoleType));
+
+        // 게시물 이미지가 존재 하면 업로드테이블에 매핑
+        if (req.uploadIdxs() != null && !req.uploadIdxs().isEmpty()) {
+            List<Uploads> uploadsList = uploadsRepository.findAllById(req.uploadIdxs());
+            uploadsList.forEach(uploads -> uploads.modifyUploadMappingIdx(savePostData.getIdx()));
+        }
+
     }
 
     @Transactional

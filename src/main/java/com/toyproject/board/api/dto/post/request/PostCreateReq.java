@@ -9,6 +9,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.util.List;
+
 @Schema(description = "게시판 생성 요청 DTO")
 public record PostCreateReq(
         @Schema(description = "제목", example = "테스트 제목 1")
@@ -22,7 +24,12 @@ public record PostCreateReq(
 
         @Schema(description = "게시판 타입 (예: NEWS, NOTICE 등)", example = "NEWS")
         @NotNull(message = "게시판 타입은 필수 선택 사항입니다.")
-        BoardType boardType
+        BoardType boardType,
+
+        @Schema(description = "업로드 idx")
+        List<Long> uploadIdxs
+
+
 ) {
 
     public Post toEntity(Admin admin, RoleType roleType) {

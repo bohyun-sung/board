@@ -9,6 +9,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 public class SecurityUtil {
 
+    /**
+     * @return 인가처리된 계정 idx 반환
+     */
     public static Long getCurrentMemberIdx() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || auth.getPrincipal() instanceof String) {
@@ -19,6 +22,9 @@ public class SecurityUtil {
         return userPrincipal.getIdx();
     }
 
+    /**
+     * @return 인가 처리된 계정 RoleType 반환
+     */
     public static RoleType getCurrentRoleType() {
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userPrincipal.getRoleType();
