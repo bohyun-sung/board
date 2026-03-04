@@ -18,8 +18,9 @@ public class UploadsDto {
     private Long uploadMappingIdx;
     private Long fileSize;
     private String extension;
+    private Integer sortOrder;
 
     public Uploads toEntity() {
-        return Uploads.of(uploadUrl, thumbnailUrl, uploadType, fileSize, extension);
+        return Uploads.of(uploadUrl, thumbnailUrl, uploadType, fileSize, extension, sortOrder);
     }
 }

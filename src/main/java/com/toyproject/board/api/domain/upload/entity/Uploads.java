@@ -37,6 +37,9 @@ public class Uploads extends DefaultTimeStampEntity {
     @Column(name = "extension")
     private String extension;
 
+    @Column(name = "sort_order")
+    private Integer sortOrder;
+
     /**
      * 업로드 생성자
      *
@@ -46,15 +49,24 @@ public class Uploads extends DefaultTimeStampEntity {
      * @param fileSize     파일 사이즈
      * @param extension    확장자
      */
-    public Uploads(String uploadUrl, String thumbnailUrl, UploadType uploadType, Long fileSize, String extension) {
+    public Uploads(String uploadUrl, String thumbnailUrl, UploadType uploadType, Long fileSize, String extension, Integer sortOrder) {
         this.uploadUrl = uploadUrl;
         this.thumbnailUrl = thumbnailUrl;
         this.uploadType = uploadType;
         this.fileSize = fileSize;
         this.extension = extension;
+        this.sortOrder = sortOrder;
     }
 
-    public static Uploads of(String uploadUrl, String thumbnailUrl, UploadType uploadType, Long fileSize, String extension) {
-        return new Uploads(uploadUrl, thumbnailUrl, uploadType, fileSize, extension);
+    public static Uploads of(String uploadUrl, String thumbnailUrl, UploadType uploadType, Long fileSize, String extension, Integer sortOrder) {
+        return new Uploads(uploadUrl, thumbnailUrl, uploadType, fileSize, extension, sortOrder);
+    }
+
+    /**
+     * uploadMappingIdx 매핑
+     * @param uploadMappingIdx 매핑될 Upload idx
+     */
+    public void modifyUploadMappingIdx(Long uploadMappingIdx) {
+        this.uploadMappingIdx = uploadMappingIdx;
     }
 }
