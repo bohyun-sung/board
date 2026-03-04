@@ -1,8 +1,11 @@
-package com.toyproject.board.api.config;
+package com.toyproject.board.api.security.config;
 
 import com.toyproject.board.api.config.properties.JwtTokenProperty;
 import com.toyproject.board.api.filter.JwtAuthenticationFilter;
-import com.toyproject.board.api.service.security.CustomUserDetailsService;
+import com.toyproject.board.api.security.oauth.CustomOAuth2UserService;
+import com.toyproject.board.api.security.CustomUserDetailsService;
+import com.toyproject.board.api.security.oauth.OAuth2SuccessHandler;
+import com.toyproject.board.api.security.properties.AppSecurityProperties;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -30,22 +33,10 @@ public class SecurityConfig {
 
     private final JwtTokenProperty jwtTokenProperty;
     private final CustomUserDetailsService customUserDetailsService;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final AppSecurityProperties appSecurityProperties;
 
-    private static final String[] WHITELIST = {
-            "/v3/api-docs/**",
-            "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/swagger-resources/**",
-            "/webjars/**"
-    };
-
-    private static final String[] GET_WHITELIST = {
-            "/api/post/**"
-    };
-    private static final String[] POST_WHITELIST = {
-            "/api/auth/login/admin",
-            "/api/auth/create/admin",
-    };
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -60,15 +51,20 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers(WHITELIST).permitAll()
-                                .requestMatchers(HttpMethod.GET, GET_WHITELIST).permitAll()
-                                .requestMatchers(HttpMethod.POST,POST_WHITELIST).permitAll()
+                                .requestMatchers(appSecurityProperties.getWhitelist().toArray(String[]::new)).permitAll()
+                                .requestMatchers(HttpMethod.GET, appSecurityProperties.getGetWhitelist().toArray(String[]::new)).permitAll()
+                                .requestMatchers(HttpMethod.POST,appSecurityProperties.getPostWhitelist().toArray(String[]::new)).permitAll()
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                                .anyRequest().authenticated()
+                                .anyRequest()
+                                .authenticated()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                        .successHandler(oAuth2SuccessHandler)
                 )
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProperty, customUserDetailsService), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProperty, customUserDetailsService, appSecurityProperties), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, authException) ->
                                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")));
@@ -79,7 +75,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("*")); // 특정 도메인만 허용 (보안상 권장)
+        configuration.setAllowedOriginPatterns(List.of("*")); // 특정 도메인만 허용 (보안상 권장)
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("Authorization"));

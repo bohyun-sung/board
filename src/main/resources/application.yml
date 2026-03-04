@@ -61,3 +61,21 @@ logging:
     org.springframework.security: debug
     com.zaxxer.hikari: DEBUG
     com.zaxxer.hikari.HikariConfig: DEBUG
+
+app:
+  security:
+    url:
+      whitelist:
+        - "/v3/api-docs/**"
+        - "/swagger-ui/**"
+        - "/swagger-ui.html"
+        - "/swagger-resources/**"
+        - "/webjars/**"
+        - "/login/oauth2/**"
+      post-whitelist:
+        - "/api/auth/login/admin"
+        - "/api/auth/login/member"
+        - "/api/auth/create/admin"
+        - "/api/auth/create/member"
+      get-whitelist:
+        - "/api/post/**"
