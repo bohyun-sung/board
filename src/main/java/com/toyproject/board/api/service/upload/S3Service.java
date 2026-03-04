@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -63,15 +65,18 @@ public class S3Service {
      */
     @Transactional
     public List<UploadsRes> uploadMultipleFiles(List<MultipartFile> files, UploadType uploadType) {
+        if (files == null || files.isEmpty()) return Collections.emptyList();
 
-        List<UploadsDto> uploadsDtos = files.parallelStream()
-                .filter(file -> !file.isEmpty())
-                .map(file -> upload(file, uploadType))
-                .toList();
+        // 0~파일사이즈까지 루프 하여 순서 업로드
+        Stream<UploadsDto> uploadsDtoStream = IntStream.range(0, files.size())
+                .parallel()
+                .mapToObj(sortOrder -> {
+                    MultipartFile file = files.get(sortOrder);
+                    return upload(file, uploadType, sortOrder);
+                });
 
-        List<Uploads> uploadsList = uploadsDtos.stream()
-                .map(UploadsDto::toEntity)
-                .toList();
+        // 이미지 데이터 저장
+        List<Uploads> uploadsList = uploadsDtoStream.map(UploadsDto::toEntity).toList();
 
         List<Uploads> uploadsSaveData = uploadsRepository.saveAll(uploadsList);
 
@@ -100,7 +105,7 @@ public class S3Service {
      * @param file 업로드 파일
      * @return 업로드된 url
      */
-    private UploadsDto upload(MultipartFile file, UploadType uploadType) {
+    private UploadsDto upload(MultipartFile file, UploadType uploadType, int sortOrder) {
         validateFile(file);
 
         String originalName = Normalizer.normalize(Objects.requireNonNull(file.getOriginalFilename()), Normalizer.Form.NFC);
@@ -116,6 +121,7 @@ public class S3Service {
                     .uploadType(uploadType)
                     .fileSize(file.getSize())
                     .extension(StringUtils.getFilenameExtension(file.getOriginalFilename()))
+                    .sortOrder(sortOrder)
                     .build();
 
         } catch (IOException e) {
