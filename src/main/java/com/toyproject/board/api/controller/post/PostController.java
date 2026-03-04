@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -43,8 +44,8 @@ public class PostController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content)
     })
     @GetMapping("/{postIdx}")
-    public Response<PostShowRes> showPost(@PathVariable Long postIdx) {
-        return Response.success(PostShowRes.from(postService.showPost(postIdx)));
+    public Response<PostShowRes> showPost(@PathVariable Long postIdx, HttpServletRequest request) {
+        return Response.success(PostShowRes.from(postService.showPost(postIdx, request)));
     }
 
     @Operation(summary = "게시물 작성", description = "게시물 작성")

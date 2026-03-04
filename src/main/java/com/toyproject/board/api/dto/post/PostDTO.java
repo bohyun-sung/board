@@ -64,12 +64,12 @@ public class PostDTO {
         );
     }
 
-    public static PostDTO fromAndUploads(Post entity, List<UploadsShowDto> dtos) {
+    public static PostDTO fromAndUploadsAndViewCount(Post entity, List<UploadsShowDto> dtos, Integer viewCount) {
         return new PostDTO(
                 entity.getIdx(),
                 entity.getTitle(),
                 entity.getContent(),
-                entity.getViewCount(),
+                viewCount,
                 entity.getBoardType(),
                 entity.getRoleType(),
                 entity.getAdminWriterIdx(),

@@ -15,6 +15,7 @@ import com.toyproject.board.api.enums.ExceptionType;
 import com.toyproject.board.api.enums.RoleType;
 import com.toyproject.board.api.enums.UploadType;
 import com.toyproject.board.api.utill.SecurityUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,23 +27,25 @@ import java.util.List;
 @Service
 public class PostService {
 
+    private final ViewCountService viewCountService;
+
     private final AdminRepository adminRepository;
     private final PostRepository postRepository;
     private final UploadsRepository uploadsRepository;
 
-    @Transactional
-    public PostDTO showPost(Long postIdx) {
+
+    public PostDTO showPost(Long postIdx, HttpServletRequest request) {
         // 게시물 정보 조회
         Post post = postRepository.findById(postIdx).orElseThrow(() -> new ClientException(ExceptionType.BAD_REQUEST, "잘못된 정보"));
         // 게시물 조회수 증가
-        post.increaseViewCount();
+        viewCountService.increaseViewCountAsync(postIdx, request);
         // 업로드 파일 매핑
         List<Uploads> uploadsList = uploadsRepository.findAllByUploadMappingIdxAndUploadTypeOrderBySortOrderAsc(post.getIdx(), UploadType.POST);
         List<UploadsShowDto> uploadsShowDtoList = uploadsList.stream()
                 .map(UploadsShowDto::from)
                 .toList();
-
-        return PostDTO.fromAndUploads(post, uploadsShowDtoList);
+        Integer totalViewCount = Math.toIntExact(post.getViewCount() + viewCountService.getViewCount(postIdx));
+        return PostDTO.fromAndUploadsAndViewCount(post, uploadsShowDtoList, totalViewCount);
     }
 
     @Transactional

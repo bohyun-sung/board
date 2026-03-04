@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -30,6 +31,21 @@ public class SecurityConfig {
     private final JwtTokenProperty jwtTokenProperty;
     private final CustomUserDetailsService customUserDetailsService;
 
+    private static final String[] WHITELIST = {
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/swagger-resources/**",
+            "/webjars/**"
+    };
+
+    private static final String[] GET_WHITELIST = {
+            "/api/post/**"
+    };
+    private static final String[] POST_WHITELIST = {
+            "/api/auth/login/admin",
+            "/api/auth/create/admin",
+    };
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -44,14 +60,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers(
-                                        "/v3/api-docs/**",
-                                        "/swagger-ui/**",
-                                        "/swagger-ui.html",
-                                        "/swagger-resources/**",
-                                        "/webjars/**"
-                                ).permitAll()
-                                .requestMatchers("/api/auth/**").permitAll()
+                                .requestMatchers(WHITELIST).permitAll()
+                                .requestMatchers(HttpMethod.GET, GET_WHITELIST).permitAll()
+                                .requestMatchers(HttpMethod.POST,POST_WHITELIST).permitAll()
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 )
