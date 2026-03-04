@@ -1,4 +1,4 @@
-package com.toyproject.board.api.dto.admin.request;
+package com.toyproject.board.api.dto.auth.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

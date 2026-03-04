@@ -1,6 +1,7 @@
-package com.toyproject.board.api.filter;
+package com.toyproject.board.api.jwt.filter;
 
 import com.toyproject.board.api.config.properties.JwtTokenProperty;
+import com.toyproject.board.api.jwt.JwtUserInfo;
 import com.toyproject.board.api.security.CustomUserDetailsService;
 import com.toyproject.board.api.security.properties.AppSecurityProperties;
 import jakarta.servlet.FilterChain;
@@ -35,9 +36,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (StringUtils.hasText(token) && jwtTokenProperty.validateToken(token)) {
                 // 토큰에서 식별자 추출
-                String identifier = jwtTokenProperty.getUserId(token);
+                JwtUserInfo userInfo = jwtTokenProperty.getUserInfo(token);
                 // ADMIN 또는 MEMBER 조회
-                UserDetails userDetails = customUserDetailsService.loadUserByUsername(identifier);
+                UserDetails userDetails = customUserDetailsService.loadUserByUserInfo(userInfo);
                 // 인증 객체 생성 및 권한 및 정보 설정
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -62,7 +63,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * @param request current HTTP request
      */
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
 
         return appSecurityProperties.getAllExcludes().stream()
@@ -71,8 +72,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     /**
      * Bearer 로 시작되는지 확인
-     * @param request
-     * @return
      */
     private String resolve(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");

@@ -1,7 +1,7 @@
 package com.toyproject.board.api.security.config;
 
 import com.toyproject.board.api.config.properties.JwtTokenProperty;
-import com.toyproject.board.api.filter.JwtAuthenticationFilter;
+import com.toyproject.board.api.jwt.filter.JwtAuthenticationFilter;
 import com.toyproject.board.api.security.oauth.CustomOAuth2UserService;
 import com.toyproject.board.api.security.CustomUserDetailsService;
 import com.toyproject.board.api.security.oauth.OAuth2SuccessHandler;

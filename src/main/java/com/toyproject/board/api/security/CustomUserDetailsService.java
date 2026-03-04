@@ -7,6 +7,8 @@ import com.toyproject.board.api.domain.member.entity.Member;
 import com.toyproject.board.api.domain.member.repository.MemberRepository;
 import com.toyproject.board.api.dto.users.UserPrincipal;
 import com.toyproject.board.api.enums.ExceptionType;
+import com.toyproject.board.api.enums.RoleType;
+import com.toyproject.board.api.jwt.JwtUserInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,12 +26,19 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Optional<Admin> admin = adminRepository.findByEmail(email);
-        if (admin.isPresent()) {
-            return new UserPrincipal(admin.get());
+        throw new UnsupportedOperationException("이메일은 기반은 지원하지 않습니다");
+    }
+
+
+    public UserDetails loadUserByUserInfo(JwtUserInfo userInfo) throws UsernameNotFoundException {
+        if (userInfo.getRoleType() == RoleType.ADMIN) {
+            Admin admin = adminRepository.findById(userInfo.getUserIdx())
+                    .orElseThrow(() -> new ClientException(ExceptionType.NOT_FOUND, "존재 하지 않는 관리자입니다"));
+            return new UserPrincipal(admin);
         }
-        Member member = memberRepository.findByEmail(email)
+        Member member = memberRepository.findById(userInfo.getUserIdx())
                 .orElseThrow(() -> new ClientException(ExceptionType.NOT_FOUND, "해당 이메일을 찾을 수 없습니다"));
         return new UserPrincipal(member);
+
     }
 }

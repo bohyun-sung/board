@@ -12,13 +12,16 @@ public class AdminLoginDto {
 
     private final String userId;
 
-    private final String token;
+    private final String accessToken;
 
-    public static AdminLoginDto from(Long adminIdx, String userId, String token) {
+    private final String refreshToken;
+
+    public static AdminLoginDto from(Long adminIdx, String userId, String accessToken, String refreshToken) {
         return new AdminLoginDto(
                 adminIdx,
                 userId,
-                token
+                accessToken,
+                refreshToken
         );
     }
 }

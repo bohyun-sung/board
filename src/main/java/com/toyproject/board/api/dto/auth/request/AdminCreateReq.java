@@ -1,4 +1,4 @@
-package com.toyproject.board.api.dto.admin.request;
+package com.toyproject.board.api.dto.auth.request;
 
 import com.toyproject.board.api.domain.admin.entity.Admin;
 import com.toyproject.board.api.enums.RoleType;

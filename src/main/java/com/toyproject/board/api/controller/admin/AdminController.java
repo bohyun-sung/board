@@ -3,7 +3,7 @@ package com.toyproject.board.api.controller.admin;
 import com.toyproject.board.api.config.Response;
 import com.toyproject.board.api.dto.admin.AdminDto;
 import com.toyproject.board.api.dto.admin.request.AdminSearchAdminReq;
-import com.toyproject.board.api.dto.admin.response.AdminSearchAdminRes;
+import com.toyproject.board.api.dto.auth.response.AdminSearchAdminRes;
 import com.toyproject.board.api.service.admin.AdminService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

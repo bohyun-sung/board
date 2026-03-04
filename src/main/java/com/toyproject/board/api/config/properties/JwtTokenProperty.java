@@ -1,53 +1,74 @@
 package com.toyproject.board.api.config.properties;
 
+import com.toyproject.board.api.enums.RoleType;
+import com.toyproject.board.api.jwt.JwtUserInfo;
+import com.toyproject.board.api.jwt.properties.AppJwtProperties;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
 import java.util.Date;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtTokenProperty {
 
-    private final Key key;
-    private final long tokenValidityInMilliseconds;
+    private final AppJwtProperties appJwtProperties;
+    private static final String ROLE_KEY = "role";
 
-    public JwtTokenProperty(
-            @Value("${jwt.secret}") String secretKey,
-            @Value("${jwt.token-validity}") Long tokenValidity) {
-        this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
-        this.tokenValidityInMilliseconds = tokenValidity;
-    }
+    /**
+     * accessToken create
+     */
+    public String createToken(Long idx, RoleType roleType) {
+        Claims claims = Jwts.claims().setSubject(String.valueOf(idx));
+        claims.put(ROLE_KEY, roleType.name());
 
-    public String createToken(String userId) {
-        Claims claims = Jwts.claims().setSubject(userId);
         Date now = new Date();
-        Date validity = new Date(now.getTime() + tokenValidityInMilliseconds);
+        Date validity = new Date(now.getTime() + appJwtProperties.getAccessTTL());
 
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(validity)
-                .signWith(key, SignatureAlgorithm.HS256)
+                .signWith(appJwtProperties.getSecretAsObject(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String getUserId(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
+    /**
+     * RefreshToken create
+     */
+    public String createRefreshToken(Long idx, RoleType roleType) {
+        Claims claims = Jwts.claims().setSubject(String.valueOf(idx));
+        claims.put(ROLE_KEY, roleType.name());
+        Date now = new Date();
+        Date validity = new Date(now.getTime() + appJwtProperties.getRefreshTTL()); // 14일
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .signWith(appJwtProperties.getSecretAsObject(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public JwtUserInfo getUserInfo(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(appJwtProperties.getSecretAsObject())
                 .build()
                 .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+                .getBody();
+
+        Long userIdx = Long.parseLong(claims.getSubject());
+        RoleType roleType = RoleType.valueOf(claims.get(ROLE_KEY, String.class));
+
+        return JwtUserInfo.from(userIdx, roleType);
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            Jwts.parserBuilder().setSigningKey(appJwtProperties.getSecretAsObject()).build().parseClaimsJws(token);
             return true;
         } catch (SecurityException | MalformedJwtException e) {
             log.info("잘못된 서명이거나 토큰 형식이 잘못된 경우");

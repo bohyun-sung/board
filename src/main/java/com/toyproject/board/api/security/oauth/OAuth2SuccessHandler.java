@@ -2,9 +2,15 @@ package com.toyproject.board.api.security.oauth;
 
 import com.toyproject.board.api.config.properties.JwtTokenProperty;
 import com.toyproject.board.api.dto.users.UserPrincipal;
+import com.toyproject.board.api.enums.RoleType;
+import com.toyproject.board.api.jwt.RefreshToken;
+import com.toyproject.board.api.jwt.properties.AppJwtProperties;
+import com.toyproject.board.api.jwt.repository.RefreshTokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -17,16 +23,33 @@ import java.io.IOException;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtTokenProperty jwtTokenProperty;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final AppJwtProperties appJwtProperties;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        Long memberIdx = userPrincipal.getIdx();
+        RoleType roleType = userPrincipal.getRoleType();
 
-        String accessToken = jwtTokenProperty.createToken(userPrincipal.getUserId());
+        String accessToken = jwtTokenProperty.createToken(memberIdx, roleType);
+        String refreshToken = jwtTokenProperty.createRefreshToken(memberIdx, roleType);
+
+        refreshTokenRepository.save(RefreshToken.of(memberIdx, RoleType.USER, refreshToken));
 
         String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:8080/api/auth/success")
                 .queryParam("token", accessToken)
                 .build().toUriString();
+
+        // RefreshToken 쿠키에 추가
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(appJwtProperties.getRefreshTTL())
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
