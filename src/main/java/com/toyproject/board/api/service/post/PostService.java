@@ -10,8 +10,10 @@ import com.toyproject.board.api.domain.upload.repository.UploadsRepository;
 import com.toyproject.board.api.dto.post.PostDTO;
 import com.toyproject.board.api.dto.post.request.PostCreateReq;
 import com.toyproject.board.api.dto.post.request.PostUpdateReq;
+import com.toyproject.board.api.dto.upload.UploadsShowDto;
 import com.toyproject.board.api.enums.ExceptionType;
 import com.toyproject.board.api.enums.RoleType;
+import com.toyproject.board.api.enums.UploadType;
 import com.toyproject.board.api.utill.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,9 +32,17 @@ public class PostService {
 
     @Transactional
     public PostDTO showPost(Long postIdx) {
+        // 게시물 정보 조회
         Post post = postRepository.findById(postIdx).orElseThrow(() -> new ClientException(ExceptionType.BAD_REQUEST, "잘못된 정보"));
+        // 게시물 조회수 증가
         post.increaseViewCount();
-        return PostDTO.from(post);
+        // 업로드 파일 매핑
+        List<Uploads> uploadsList = uploadsRepository.findAllByUploadMappingIdxAndUploadTypeOrderBySortOrderAsc(post.getIdx(), UploadType.POST);
+        List<UploadsShowDto> uploadsShowDtoList = uploadsList.stream()
+                .map(UploadsShowDto::from)
+                .toList();
+
+        return PostDTO.fromAndUploads(post, uploadsShowDtoList);
     }
 
     @Transactional
