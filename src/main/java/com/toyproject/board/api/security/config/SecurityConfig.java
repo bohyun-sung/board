@@ -2,6 +2,7 @@ package com.toyproject.board.api.security.config;
 
 import com.toyproject.board.api.config.properties.JwtTokenProperty;
 import com.toyproject.board.api.constants.AuthConstants;
+import com.toyproject.board.api.jwt.entyPoint.JwtAuthenticationEntryPoint;
 import com.toyproject.board.api.jwt.filter.JwtAuthenticationFilter;
 import com.toyproject.board.api.security.oauth.CustomOAuth2UserService;
 import com.toyproject.board.api.security.CustomUserDetailsService;
@@ -37,6 +38,7 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final AppSecurityProperties appSecurityProperties;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
 
     @Bean
@@ -54,7 +56,7 @@ public class SecurityConfig {
                         auth
                                 .requestMatchers(appSecurityProperties.getWhitelist().toArray(String[]::new)).permitAll()
                                 .requestMatchers(HttpMethod.GET, appSecurityProperties.getGetWhitelist().toArray(String[]::new)).permitAll()
-                                .requestMatchers(HttpMethod.POST,appSecurityProperties.getPostWhitelist().toArray(String[]::new)).permitAll()
+                                .requestMatchers(HttpMethod.POST, appSecurityProperties.getPostWhitelist().toArray(String[]::new)).permitAll()
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                 .anyRequest()
                                 .authenticated()
@@ -66,9 +68,7 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProperty, customUserDetailsService, appSecurityProperties), UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint((request, response, authException) ->
-                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")));
+                .exceptionHandling(handler -> handler.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
         return http.build();
     }

@@ -1,5 +1,7 @@
 package com.toyproject.board.api.config.properties;
 
+import com.toyproject.board.api.config.exception.ClientException;
+import com.toyproject.board.api.enums.ExceptionType;
 import com.toyproject.board.api.enums.RoleType;
 import com.toyproject.board.api.jwt.JwtUserInfo;
 import com.toyproject.board.api.jwt.properties.AppJwtProperties;
@@ -71,17 +73,17 @@ public class JwtTokenProperty {
             Jwts.parserBuilder().setSigningKey(appJwtProperties.getSecretAsObject()).build().parseClaimsJws(token);
             return true;
         } catch (SecurityException | MalformedJwtException e) {
-            log.info("잘못된 서명이거나 토큰 형식이 잘못된 경우");
-            return false;
+            log.error("잘못된 서명이거나 토큰 형식이 잘못된 경우: {}", e.getMessage());
+            throw new ClientException(ExceptionType.UNAUTHORIZED_TOKEN_INVALID);
         } catch (ExpiredJwtException e) {
-            log.info("토큰이 만료된 경우");
-            return false;
+            log.error("토큰이 만료된 경우: {}", e.getMessage());
+            throw new ClientException(ExceptionType.UNAUTHORIZED_TOKEN_EXPIRED);
         } catch (UnsupportedJwtException e) {
-            log.info("지원되지 않는 토큰인 경우");
-            return false;
+            log.error("지원되지 않는 토큰인 경우: {}", e.getMessage());
+            throw new ClientException(ExceptionType.UNAUTHORIZED_TOKEN_UNSUPPORTED);
         } catch (IllegalArgumentException e) {
-            log.info("토큰이 비어있거나 잘못된 경우");
-            return false;
+            log.error("토큰이 비어있거나 잘못된 경우: {}", e.getMessage());
+            throw new ClientException(ExceptionType.UNAUTHORIZED_TOKEN_EMPTY);
         }
     }
 }

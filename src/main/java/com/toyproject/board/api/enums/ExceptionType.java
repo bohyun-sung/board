@@ -18,6 +18,11 @@ public enum ExceptionType {
     UNAUTHORIZED_LOGIN_FAIL_MEMBER(HttpStatus.UNAUTHORIZED, "Login.fail.member"),
     UNAUTHORIZED_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "token.invalid"),
     UNAUTHORIZED_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "token.notFound"),
+
+
+    UNAUTHORIZED_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "token.expired"),
+    UNAUTHORIZED_TOKEN_UNSUPPORTED(HttpStatus.UNAUTHORIZED, "token.unsupported"), // 지원되지 않음
+    UNAUTHORIZED_TOKEN_EMPTY(HttpStatus.UNAUTHORIZED, "token.empty"),
     // 403 FORBIDDEN
     FORBIDDEN(HttpStatus.FORBIDDEN, "forbidden"),
     // 404 NOT_FOUND

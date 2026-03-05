@@ -1,5 +1,6 @@
 package com.toyproject.board.api.jwt.filter;
 
+import com.toyproject.board.api.config.exception.ClientException;
 import com.toyproject.board.api.config.properties.JwtTokenProperty;
 import com.toyproject.board.api.constants.AuthConstants;
 import com.toyproject.board.api.jwt.JwtUserInfo;
@@ -35,25 +36,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String token = resolve(request);
 
-            if (StringUtils.hasText(token) && jwtTokenProperty.validateToken(token)) {
-                // 토큰에서 식별자 추출
-                JwtUserInfo userInfo = jwtTokenProperty.getUserInfo(token);
-                // ADMIN 또는 MEMBER 조회
-                UserDetails userDetails = customUserDetailsService.loadUserByUserInfo(userInfo);
-                // 인증 객체 생성 및 권한 및 정보 설정
-                UsernamePasswordAuthenticationToken authenticationToken =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                // 요청된 상세 정보를 인증 객체에 바인딩
-                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                // SecurityContext에 인증 정보 저장
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            if (StringUtils.hasText(token)) {
+                if (jwtTokenProperty.validateToken(token)) {
+                    // 토큰에서 식별자 추출
+                    JwtUserInfo userInfo = jwtTokenProperty.getUserInfo(token);
+                    // ADMIN 또는 MEMBER 조회
+                    UserDetails userDetails = customUserDetailsService.loadUserByUserInfo(userInfo);
+                    // 인증 객체 생성 및 권한 및 정보 설정
+                    UsernamePasswordAuthenticationToken authenticationToken =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    // 요청된 상세 정보를 인증 객체에 바인딩
+                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    // SecurityContext에 인증 정보 저장
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                } else {
+                    request.setAttribute("exception", "토큰이 존재하지 않습니다");
+                }
             }
-        } catch (HttpClientErrorException.NotFound e) {
-            SecurityContextHolder.clearContext();
+        } catch (ClientException e) {
             logger.error("Could not set user authentication in security context", e);
-        } catch (Exception e) {
             SecurityContextHolder.clearContext();
+            request.setAttribute("exception", e.getMessage());
+        } catch (Exception e) {
             logger.error("Authentication error: ", e);
+            SecurityContextHolder.clearContext();
+            request.setAttribute("exception", e.getMessage());
         }
 
         filterChain.doFilter(request, response);
