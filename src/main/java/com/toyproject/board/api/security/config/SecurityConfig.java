@@ -1,6 +1,6 @@
 package com.toyproject.board.api.security.config;
 
-import com.toyproject.board.api.config.properties.JwtTokenProperty;
+import com.toyproject.board.api.jwt.properties.JwtTokenProperty;
 import com.toyproject.board.api.constants.AuthConstants;
 import com.toyproject.board.api.jwt.entyPoint.JwtAuthenticationEntryPoint;
 import com.toyproject.board.api.jwt.filter.JwtAuthenticationFilter;

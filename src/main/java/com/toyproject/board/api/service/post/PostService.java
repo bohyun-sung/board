@@ -1,6 +1,6 @@
 package com.toyproject.board.api.service.post;
 
-import com.toyproject.board.api.config.exception.ClientException;
+import com.toyproject.board.api.exception.ClientException;
 import com.toyproject.board.api.domain.admin.entity.Admin;
 import com.toyproject.board.api.domain.admin.repository.AdminRepository;
 import com.toyproject.board.api.domain.post.entity.Post;

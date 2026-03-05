@@ -1,4 +1,4 @@
-package com.toyproject.board.api.config.exception;
+package com.toyproject.board.api.exception;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,6 +1,6 @@
 package com.toyproject.board.api.security.oauth;
 
-import com.toyproject.board.api.config.properties.JwtTokenProperty;
+import com.toyproject.board.api.jwt.properties.JwtTokenProperty;
 import com.toyproject.board.api.constants.AuthConstants;
 import com.toyproject.board.api.dto.users.UserPrincipal;
 import com.toyproject.board.api.enums.RoleType;

@@ -1,8 +1,7 @@
 package com.toyproject.board.api.service.authorization;
 
-import com.toyproject.board.api.config.exception.ClientException;
-import com.toyproject.board.api.config.properties.JwtTokenProperty;
-import com.toyproject.board.api.constants.AuthConstants;
+import com.toyproject.board.api.exception.ClientException;
+import com.toyproject.board.api.jwt.properties.JwtTokenProperty;
 import com.toyproject.board.api.domain.admin.entity.Admin;
 import com.toyproject.board.api.domain.admin.repository.AdminRepository;
 import com.toyproject.board.api.domain.member.entity.Member;
@@ -24,7 +23,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.util.concurrent.TimeUnit;
 

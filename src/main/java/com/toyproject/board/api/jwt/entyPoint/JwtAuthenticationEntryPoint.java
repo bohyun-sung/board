@@ -1,7 +1,7 @@
 package com.toyproject.board.api.jwt.entyPoint;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.toyproject.board.api.config.exception.ErrorResponse;
+import com.toyproject.board.api.exception.ErrorResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

@@ -1,6 +1,6 @@
 package com.toyproject.board.api.utill;
 
-import com.toyproject.board.api.config.exception.ClientException;
+import com.toyproject.board.api.exception.ClientException;
 import com.toyproject.board.api.dto.users.UserPrincipal;
 import com.toyproject.board.api.enums.ExceptionType;
 import com.toyproject.board.api.enums.RoleType;

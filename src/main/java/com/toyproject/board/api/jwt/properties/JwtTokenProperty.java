@@ -1,11 +1,10 @@
-package com.toyproject.board.api.config.properties;
+package com.toyproject.board.api.jwt.properties;
 
-import com.toyproject.board.api.config.exception.ClientException;
+import com.toyproject.board.api.exception.ClientException;
 import com.toyproject.board.api.constants.AuthConstants;
 import com.toyproject.board.api.enums.ExceptionType;
 import com.toyproject.board.api.enums.RoleType;
 import com.toyproject.board.api.jwt.JwtUserInfo;
-import com.toyproject.board.api.jwt.properties.AppJwtProperties;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

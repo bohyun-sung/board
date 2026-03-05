@@ -1,4 +1,4 @@
-package com.toyproject.board.api.config.exception;
+package com.toyproject.board.api.exception;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

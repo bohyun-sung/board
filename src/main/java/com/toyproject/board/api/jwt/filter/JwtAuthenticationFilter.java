@@ -1,7 +1,7 @@
 package com.toyproject.board.api.jwt.filter;
 
-import com.toyproject.board.api.config.exception.ClientException;
-import com.toyproject.board.api.config.properties.JwtTokenProperty;
+import com.toyproject.board.api.exception.ClientException;
+import com.toyproject.board.api.jwt.properties.JwtTokenProperty;
 import com.toyproject.board.api.constants.AuthConstants;
 import com.toyproject.board.api.constants.RedisConstants;
 import com.toyproject.board.api.enums.ExceptionType;

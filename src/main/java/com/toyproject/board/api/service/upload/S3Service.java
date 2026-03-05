@@ -1,7 +1,7 @@
 package com.toyproject.board.api.service.upload;
 
-import com.toyproject.board.api.config.exception.ClientException;
-import com.toyproject.board.api.config.exception.ServerException;
+import com.toyproject.board.api.exception.ClientException;
+import com.toyproject.board.api.exception.ServerException;
 import com.toyproject.board.api.domain.upload.entity.Uploads;
 import com.toyproject.board.api.domain.upload.repository.UploadsRepository;
 import com.toyproject.board.api.dto.upload.UploadsDto;
