@@ -1,6 +1,7 @@
 package com.toyproject.board.api.jwt.filter;
 
 import com.toyproject.board.api.config.properties.JwtTokenProperty;
+import com.toyproject.board.api.constants.AuthConstants;
 import com.toyproject.board.api.jwt.JwtUserInfo;
 import com.toyproject.board.api.security.CustomUserDetailsService;
 import com.toyproject.board.api.security.properties.AppSecurityProperties;
@@ -74,8 +75,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * Bearer 로 시작되는지 확인
      */
     private String resolve(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+        String bearerToken = request.getHeader(AuthConstants.AUTHORIZATION);
+        if (bearerToken != null && bearerToken.startsWith(AuthConstants.BEARER_PREFIX)) {
             return bearerToken.substring(7);
         }
         return null; // 에러 처리

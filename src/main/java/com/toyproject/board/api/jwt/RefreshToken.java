@@ -1,7 +1,7 @@
 package com.toyproject.board.api.jwt;
 
 
-import com.toyproject.board.api.constants.TokenConstants;
+import com.toyproject.board.api.constants.AuthConstants;
 import com.toyproject.board.api.enums.RoleType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -14,7 +14,7 @@ import org.springframework.data.redis.core.index.Indexed;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@RedisHash(value = TokenConstants.REFRESH_TOKEN, timeToLive = TokenConstants.REFRESH_TOKEN_MAX_AGE)
+@RedisHash(value = AuthConstants.REFRESH_TOKEN, timeToLive = AuthConstants.REFRESH_TOKEN_MAX_AGE)
 public class RefreshToken {
 
     @Id

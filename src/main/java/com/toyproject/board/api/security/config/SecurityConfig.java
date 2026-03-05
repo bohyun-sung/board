@@ -1,6 +1,7 @@
 package com.toyproject.board.api.security.config;
 
 import com.toyproject.board.api.config.properties.JwtTokenProperty;
+import com.toyproject.board.api.constants.AuthConstants;
 import com.toyproject.board.api.jwt.filter.JwtAuthenticationFilter;
 import com.toyproject.board.api.security.oauth.CustomOAuth2UserService;
 import com.toyproject.board.api.security.CustomUserDetailsService;
@@ -78,7 +79,7 @@ public class SecurityConfig {
         configuration.setAllowedOriginPatterns(List.of("*")); // 특정 도메인만 허용 (보안상 권장)
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setExposedHeaders(List.of("Authorization"));
+        configuration.setExposedHeaders(List.of(AuthConstants.AUTHORIZATION));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
         configuration.setAllowCredentials(true);

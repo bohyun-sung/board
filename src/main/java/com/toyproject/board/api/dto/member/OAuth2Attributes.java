@@ -25,7 +25,7 @@ public class OAuth2Attributes {
     /**
      * 구글 데이터 추출 로직
      */
-    public static OAuth2Attributes of(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
+    public static OAuth2Attributes of(String userNameAttributeName, Map<String, Object> attributes) {
 
         return OAuth2Attributes.builder()
                 .attributes(attributes)

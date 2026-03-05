@@ -1,7 +1,7 @@
 package com.toyproject.board.api.controller.auth;
 
 import com.toyproject.board.api.config.Response;
-import com.toyproject.board.api.constants.TokenConstants;
+import com.toyproject.board.api.constants.AuthConstants;
 import com.toyproject.board.api.dto.admin.AdminLoginDto;
 import com.toyproject.board.api.dto.auth.TokenDto;
 import com.toyproject.board.api.dto.auth.request.AdminCreateReq;
@@ -43,7 +43,7 @@ public class AuthController {
 
         AdminLoginDto adminLoginDto = authService.loginAdmin(req);
 
-        ResponseCookie cookie = ResponseCookie.from(TokenConstants.REFRESH_TOKEN, adminLoginDto.getTokenDto().refreshToken())
+        ResponseCookie cookie = ResponseCookie.from(AuthConstants.REFRESH_TOKEN, adminLoginDto.getTokenDto().refreshToken())
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -65,7 +65,7 @@ public class AuthController {
     public Response<MemberLoginRes> loginMember(@RequestBody @Validated MemberLoginReq req, HttpServletResponse response) {
         MemberLoginDto memberLoginDto = authService.loginMember(req);
 
-        ResponseCookie cookie = ResponseCookie.from(TokenConstants.REFRESH_TOKEN, memberLoginDto.getTokenDto().refreshToken())
+        ResponseCookie cookie = ResponseCookie.from(AuthConstants.REFRESH_TOKEN, memberLoginDto.getTokenDto().refreshToken())
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -106,10 +106,10 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "유효하지 않은 인증 정보"),
     })
     @PostMapping("/reissue")
-    public Response<TokenDto> reissue(@CookieValue(name = TokenConstants.REFRESH_TOKEN) String refreshToken, HttpServletResponse response) {
+    public Response<TokenDto> reissue(@CookieValue(name = AuthConstants.REFRESH_TOKEN) String refreshToken, HttpServletResponse response) {
         TokenDto tokenDto = authService.reissue(refreshToken);
 
-        ResponseCookie cookie = ResponseCookie.from(TokenConstants.REFRESH_TOKEN, tokenDto.refreshToken())
+        ResponseCookie cookie = ResponseCookie.from(AuthConstants.REFRESH_TOKEN, tokenDto.refreshToken())
                 .httpOnly(true)
                 .secure(true)
                 .path("/")

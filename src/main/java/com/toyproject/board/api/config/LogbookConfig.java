@@ -2,6 +2,7 @@ package com.toyproject.board.api.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.toyproject.board.api.constants.AuthConstants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.zalando.logbook.*;
@@ -35,7 +36,7 @@ public class LogbookConfig {
                         requestTo("/actuator/**")
                 ))
                 // 2. 헤더 마스킹 (이름이 일치하는 헤더의 값을 "XXXXX"로 대체)
-                .headerFilter(replaceHeaders("Authorization", "XXXXX"))
+                .headerFilter(replaceHeaders(AuthConstants.AUTHORIZATION, "XXXXX"))
                 .headerFilter(replaceHeaders("Set-Cookie", "XXXXX"))
 
                 // 3. 바디 마스킹 (ContentType과 Body 두 개의 인자를 받습니다)
