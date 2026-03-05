@@ -4,6 +4,7 @@ import com.toyproject.board.api.domain.member.entity.Member;
 import com.toyproject.board.api.domain.member.repository.MemberRepository;
 import com.toyproject.board.api.dto.member.OAuth2Attributes;
 import com.toyproject.board.api.dto.users.UserPrincipal;
+import com.toyproject.board.api.enums.ProviderType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -32,11 +33,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .getUserInfoEndpoint()
                 .getUserNameAttributeName();
 
+        // 소셜 속성 객체 생성
         OAuth2Attributes attributes = OAuth2Attributes.of(
                 registrationId,
                 userNameAttributeName,
                 oAuth2User.getAttributes());
-
+        // 이메일로 회원 검색후 존재하면 업데이트, 없으면 신규 가입
         Member member = memberRepository.findByEmail(attributes.getEmail())
                 .map(entity -> entity.modifyName(attributes.getName()))
                 .orElseGet(() -> memberRepository.save(attributes.toEntity(registrationId)));

@@ -3,35 +3,41 @@ package com.toyproject.board.api.dto.auth.request;
 import com.toyproject.board.api.domain.admin.entity.Admin;
 import com.toyproject.board.api.enums.RoleType;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 @Schema(description = "관리자 생성 DTO")
 public record AdminCreateReq(
-        @Schema(description = "관리자 성함", example = "홍길동")
+        @Schema(description = "관리자명", example = "홍길동")
         @NotBlank(message = "{NotBlank.name}")
         String name,
 
-        @Schema(description = "로그인용 아이디", example = "admin_1")
+        @Schema(description = "아이디", example = "admin_1")
         @NotBlank(message = "{NotBlank.userId}")
         String userId,
 
-        @Schema(description = "로그인용 비밀번호", example = "123!")
+        @Schema(description = "비밀번호", example = "123!")
         @NotBlank(message = "{NotBlank.password}")
         String password,
 
+        @Schema(description = "비밀번호체크", example = "123!")
+        @NotBlank(message = "{NotBlank.password}")
+        String passwordCheck,
+
         @Schema(description = "연락 가능한 이메일", example = "admin@example.com")
         @NotBlank(message = "{NotBlank.email}")
+        @Email(message = "Email.email")
         String email,
 
         @Schema(description = "핸드폰 번호", example = "010-0000-0000")
         @NotBlank(message = "{NotBlank.phone}")
         String phone
 ) {
-        public Admin toEntity() {
+        public Admin toEntity(String encodePassword) {
                 return Admin.of(
                         this.name,
                         this.userId,
-                        this.password,
+                        encodePassword,
                         this.email,
                         this.phone,
                         RoleType.ADMIN

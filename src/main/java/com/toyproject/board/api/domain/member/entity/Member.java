@@ -1,8 +1,11 @@
 package com.toyproject.board.api.domain.member.entity;
 
 import com.toyproject.board.api.domain.base.DefaultTimeStampEntity;
+import com.toyproject.board.api.enums.ProviderType;
 import com.toyproject.board.api.enums.RoleType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,18 +43,31 @@ public class Member extends DefaultTimeStampEntity {
     private RoleType roleType;
 
     @Column(name = "provider", length = 20)
-    private String provider;
+    @Convert(converter = ProviderType.Converter.class)
+    private ProviderType provider;
 
-    public Member(String email, String nickname, RoleType roleType, String provider) {
+    private Member(String email, String nickname, RoleType roleType, ProviderType providerType) {
         this.email = email;
         this.nickname = nickname;
         this.roleType = roleType;
-        this.provider = provider;
+        this.provider = providerType;
     }
 
-    public Member modifyName(String nickname) {
+    private Member(String email, String nickname, String phone, String password, RoleType roleType, ProviderType providerType) {
+        this.email = email;
         this.nickname = nickname;
-        return this;
+        this.phone = phone;
+        this.password = password;
+        this.roleType = roleType;
+        this.provider = providerType;
+    }
+
+    public static Member of(String email, String nickname, ProviderType providerType) {
+        return new Member(email, nickname, RoleType.USER, providerType);
+    }
+
+    public static Member of(String email, String nickname, String phone, String password, ProviderType providerType) {
+        return new Member(email, nickname, phone, password, RoleType.USER, providerType);
     }
 
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -59,5 +75,14 @@ public class Member extends DefaultTimeStampEntity {
             return Collections.emptyList();
         }
         return Collections.singletonList(new SimpleGrantedAuthority(this.roleType.getKey()));
+    }
+
+    public Member modifyName(String nickname) {
+        this.nickname = nickname;
+        return this;
+    }
+
+    public void updatePassword(String encodePassword) {
+        this.password = encodePassword;
     }
 }

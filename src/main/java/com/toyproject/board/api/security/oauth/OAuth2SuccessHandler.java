@@ -1,6 +1,7 @@
 package com.toyproject.board.api.security.oauth;
 
 import com.toyproject.board.api.config.properties.JwtTokenProperty;
+import com.toyproject.board.api.constants.TokenConstants;
 import com.toyproject.board.api.dto.users.UserPrincipal;
 import com.toyproject.board.api.enums.RoleType;
 import com.toyproject.board.api.jwt.RefreshToken;
@@ -42,7 +43,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .build().toUriString();
 
         // RefreshToken 쿠키에 추가
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+        ResponseCookie cookie = ResponseCookie.from(TokenConstants.REFRESH_TOKEN, refreshToken)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")

@@ -1,7 +1,7 @@
 package com.toyproject.board.api.dto.member;
 
 import com.toyproject.board.api.domain.member.entity.Member;
-import com.toyproject.board.api.enums.RoleType;
+import com.toyproject.board.api.enums.ProviderType;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -36,6 +36,7 @@ public class OAuth2Attributes {
     }
 
     public Member toEntity(String registrationId) {
-        return new Member(email, name, RoleType.USER, registrationId);
+        ProviderType providerType = ProviderType.valueOf(registrationId.toUpperCase());
+        return Member.of(email, name, providerType);
     }
 }

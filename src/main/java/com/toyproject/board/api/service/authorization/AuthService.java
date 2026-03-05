@@ -1,21 +1,23 @@
 package com.toyproject.board.api.service.authorization;
 
-import com.sun.jdi.request.DuplicateRequestException;
 import com.toyproject.board.api.config.exception.ClientException;
 import com.toyproject.board.api.config.properties.JwtTokenProperty;
 import com.toyproject.board.api.domain.admin.entity.Admin;
 import com.toyproject.board.api.domain.admin.repository.AdminRepository;
+import com.toyproject.board.api.domain.member.entity.Member;
 import com.toyproject.board.api.domain.member.repository.MemberRepository;
 import com.toyproject.board.api.dto.admin.AdminLoginDto;
+import com.toyproject.board.api.dto.auth.TokenDto;
 import com.toyproject.board.api.dto.auth.request.AdminCreateReq;
 import com.toyproject.board.api.dto.auth.request.AdminLoginReq;
-import com.toyproject.board.api.dto.auth.response.TokenRes;
+import com.toyproject.board.api.dto.auth.request.MemberLoginReq;
+import com.toyproject.board.api.dto.member.MemberLoginDto;
+import com.toyproject.board.api.dto.member.request.MemberCreateReq;
 import com.toyproject.board.api.enums.ExceptionType;
 import com.toyproject.board.api.enums.RoleType;
 import com.toyproject.board.api.jwt.RefreshToken;
 import com.toyproject.board.api.jwt.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,51 +34,76 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final RefreshTokenRepository refreshTokenRepository;
 
-
+    @Transactional
     public AdminLoginDto loginAdmin(AdminLoginReq req) {
         // 관리자 조회
         Admin admin = adminRepository.findByUserId(req.userId())
-                .orElseThrow(() -> new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다."));
+                .orElseThrow(() -> new ClientException(ExceptionType.UNAUTHORIZED, "아이디 또는 비밀번호가 일치하지 않습니다"));
         // 비밀번호 검증
-        if (!passwordEncoder.matches(req.password(), admin.getPassword())) {
-            throw new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다.");
-        }
+        validatePasswordMatch(req.password(), admin.getPassword(), admin.getRoleType());
         // 토큰 생성
-        String accessToken = jwtTokenProperty.createToken(admin.getIdx(), admin.getRoleType());
-        String refreshToken = jwtTokenProperty.createRefreshToken(admin.getIdx(), admin.getRoleType());
+        TokenDto tokenDto = tokenCreateAndSave(admin.getIdx(), admin.getRoleType());
+        return AdminLoginDto.from(admin.getIdx(), admin.getUserId(), tokenDto);
+    }
 
-        // Redis 리프레쉬 토큰 저장
-        refreshTokenRepository.save(RefreshToken.of(admin.getIdx(), admin.getRoleType(), refreshToken));
-
-        return AdminLoginDto.from(admin.getIdx(),admin.getUserId(),accessToken, refreshToken);
+    @Transactional
+    public MemberLoginDto loginMember(MemberLoginReq req) {
+        // 멤버 조회
+        Member member = memberRepository.findByEmail(req.email())
+                .orElseThrow(() -> new ClientException(ExceptionType.UNAUTHORIZED, "이메일 또는 비밀번호가 일치하지 않습니다"));
+        // 비밀번호 검증
+        validatePasswordMatch(req.password(), member.getPassword(), member.getRoleType());
+        TokenDto tokenDto = tokenCreateAndSave(member.getIdx(), member.getRoleType());
+        return MemberLoginDto.from(member.getIdx(), tokenDto);
     }
 
     @Transactional
     public void createAdmin(AdminCreateReq req) {
 
+        passwordCheck(req.password(), req.passwordCheck());
         // 아이디 중복 체크
         boolean isDuplicated = adminRepository.existsByUserId(req.userId());
 
         if (isDuplicated) {
-            throw new DuplicateRequestException("이미 사용 중인 아이디입니다");
+            throw new ClientException(ExceptionType.CONFLICT, "이미 사용 중인 아이디입니다");
         }
 
         // 비밀번호 암호화
         String encodePassword = passwordEncoder.encode(req.password());
 
-        Admin admin = req.toEntity();
-        admin.updatePassword(encodePassword);
+        Admin admin = req.toEntity(encodePassword);
 
-        // 아이디 저장
+
+        // 관리자 저장
         adminRepository.save(admin);
     }
 
     @Transactional
-    public TokenRes reissue(String oldRefreshToken) {
+    public void createMember(MemberCreateReq req) {
+
+        passwordCheck(req.password(), req.passwordCheck());
+        // 이메일 중복 체크
+        boolean isDuplicated = memberRepository.existsByEmail(req.email());
+
+        if (isDuplicated) {
+            throw new ClientException(ExceptionType.CONFLICT, "이미 사용 중인 이메일입니다");
+        }
+        // 비밀번호 암호화
+        String encodePassword = passwordEncoder.encode(req.password());
+        Member member = req.toEntity(encodePassword);
+
+        // 멤버 저장
+        memberRepository.save(member);
+    }
+
+    @Transactional
+    public TokenDto reissue(String oldRefreshToken) {
+        // 토큰 유효성 검사
         if (!jwtTokenProperty.validateToken(oldRefreshToken)) {
             throw new ClientException(ExceptionType.UNAUTHORIZED, "리프레시 토큰이 만료되었거나 유효하지 않습니다");
         }
 
+        // Redis에 토큰 존재 여부 확인후 삭제
         RefreshToken savedToken = refreshTokenRepository.findByToken(oldRefreshToken)
                 .orElseThrow(() -> new ClientException(ExceptionType.UNAUTHORIZED, "토큰 정보를 찾을 수 없습니다"));
 
@@ -85,9 +112,52 @@ public class AuthService {
         Long userIdx = savedToken.getUserIdx();
         RoleType roleType = savedToken.getRoleType();
 
-        String newAccessToken = jwtTokenProperty.createToken(userIdx, roleType);
-        String newRefreshToken = jwtTokenProperty.createRefreshToken(userIdx, roleType);
-
-        return TokenRes.from(newAccessToken, newRefreshToken);
+        return tokenCreateAndSave(userIdx, roleType);
     }
+
+    /**
+     * 요청 받은 비밀번호 검증
+     *
+     * @param reqPassword     요청 받은 비밀번호
+     * @param encodedPassword DB에 저장된 비밀번호
+     * @param roleType        유저 타입
+     */
+    private void validatePasswordMatch(String reqPassword, String encodedPassword, RoleType roleType) {
+        if (!passwordEncoder.matches(reqPassword, encodedPassword)) {
+            if (roleType == RoleType.ADMIN) {
+                throw new ClientException(ExceptionType.UNAUTHORIZED, "아이디 또는 비밀번호가 일치하지 않습니다");
+            }
+            throw new ClientException(ExceptionType.UNAUTHORIZED, "이메일 또는 비밀번호가 일치하지 않습니다");
+        }
+    }
+
+    /**
+     * Redis에 Refresh Token 저장 후 AccessToken, RefreshToken 객체 반환
+     *
+     * @param userIdx  사용자 idx
+     * @param roleType 사용자 RoleType
+     * @return 토큰 객체
+     */
+    private TokenDto tokenCreateAndSave(Long userIdx, RoleType roleType) {
+
+        String accessToken = jwtTokenProperty.createToken(userIdx, roleType);
+        String refreshToken = jwtTokenProperty.createRefreshToken(userIdx, roleType);
+
+        refreshTokenRepository.save(RefreshToken.of(userIdx, roleType, refreshToken));
+        return TokenDto.from(accessToken, refreshToken);
+    }
+
+    /**
+     * 비밀번호가 같은지 체크
+     *
+     * @param password      비밀번호
+     * @param passwordCheck 비밀번호 확인용
+     */
+    private void passwordCheck(String password, String passwordCheck) {
+        if (!password.equals(passwordCheck)) {
+            throw new ClientException(ExceptionType.BAD_REQUEST, "비밀 번호가 일치하지 않습니다");
+        }
+    }
+
+
 }

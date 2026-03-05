@@ -1,5 +1,6 @@
 package com.toyproject.board.api.dto.admin;
 
+import com.toyproject.board.api.dto.auth.TokenDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,16 +13,13 @@ public class AdminLoginDto {
 
     private final String userId;
 
-    private final String accessToken;
+    private final TokenDto tokenDto;
 
-    private final String refreshToken;
-
-    public static AdminLoginDto from(Long adminIdx, String userId, String accessToken, String refreshToken) {
+    public static AdminLoginDto from(Long adminIdx, String userId, TokenDto tokenDto) {
         return new AdminLoginDto(
                 adminIdx,
                 userId,
-                accessToken,
-                refreshToken
+                tokenDto
         );
     }
 }

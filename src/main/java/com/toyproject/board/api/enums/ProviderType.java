@@ -6,23 +6,16 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum RoleType implements BaseEnum {
+public enum ProviderType implements BaseEnum {
 
-    ADMIN(0, "관리자"),
-    USER(1, "멤버"),
+    LOCAL(0, "local"),
+    GOOGLE(1, "google"),
     ;
-
     private final Integer value;
     private final String text;
 
     @jakarta.persistence.Converter
-    public static class Converter extends BaseEnumAttributeConverter<RoleType> {
-        public Converter() {
-            super(RoleType.class);
-        }
-    }
-
-    public String getKey() {
-        return "ROLE_" + this.name();
+    public static class Converter extends BaseEnumAttributeConverter<ProviderType> {
+        public Converter() {super(ProviderType.class);}
     }
 }
