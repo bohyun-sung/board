@@ -17,10 +17,10 @@ public class AppSecurityProperties {
     private List<String> postWhitelist = new ArrayList<>();
     private List<String> getWhitelist = new ArrayList<>();
 
-    public List<String> getAllExcludes() {
-        List<String> all = new ArrayList<>(whitelist);
-        all.addAll(postWhitelist);
-        all.addAll(getWhitelist);
-        return all;
-    }
+//    public List<String> getAllExcludes() {
+//        List<String> all = new ArrayList<>(whitelist);
+//        all.addAll(postWhitelist);
+//        all.addAll(getWhitelist);
+//        return all;
+//    }
 }

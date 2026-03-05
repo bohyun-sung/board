@@ -1,10 +1,13 @@
 package com.toyproject.board.api.controller.post;
 
+import com.toyproject.board.api.annotations.CurrentUserIdx;
+import com.toyproject.board.api.annotations.CurrentUserRoleType;
 import com.toyproject.board.api.config.Response;
 import com.toyproject.board.api.dto.post.request.PostCreateReq;
 import com.toyproject.board.api.dto.post.request.PostUpdateReq;
 import com.toyproject.board.api.dto.post.response.PostShowRes;
 import com.toyproject.board.api.dto.upload.response.UploadsRes;
+import com.toyproject.board.api.enums.RoleType;
 import com.toyproject.board.api.enums.UploadType;
 import com.toyproject.board.api.service.post.PostService;
 import com.toyproject.board.api.service.upload.S3Service;
@@ -43,14 +46,19 @@ public class PostController {
             @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content)
     })
     @GetMapping("/{postIdx}")
-    public Response<PostShowRes> showPost(@PathVariable Long postIdx, HttpServletRequest request) {
+    public Response<PostShowRes> showPost(
+            @PathVariable Long postIdx,
+            HttpServletRequest request) {
         return Response.success(PostShowRes.from(postService.showPost(postIdx, request)));
     }
 
     @Operation(summary = "게시물 작성", description = "게시물 작성")
     @PostMapping
-    public Response<Void> createPost(@RequestBody @Validated PostCreateReq req) {
-        postService.createPost(req);
+    public Response<Void> createPost(
+            @RequestBody @Validated PostCreateReq req,
+            @CurrentUserIdx @Parameter(hidden = true) Long userIdx,
+            @CurrentUserRoleType @Parameter(hidden = true) RoleType roleType) {
+        postService.createPost(req, userIdx, roleType);
         return Response.success();
     }
 
@@ -70,7 +78,10 @@ public class PostController {
 
     @Operation(summary = "게시물 이미지 업로드", description = "bulk upload")
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Response<List<UploadsRes>> uploadFiles(@RequestPart("files") List<MultipartFile> files) {
-        return Response.success(s3Service.uploadMultipleFiles(files, UploadType.POST));
+    public Response<List<UploadsRes>> uploadFiles(
+            @RequestPart("files") List<MultipartFile> files,
+            @CurrentUserIdx @Parameter(hidden = true) Long userIdx,
+            @CurrentUserRoleType @Parameter(hidden = true) RoleType roleType) {
+        return Response.success(s3Service.uploadMultipleFiles(files, userIdx, roleType, UploadType.POST));
     }
 }

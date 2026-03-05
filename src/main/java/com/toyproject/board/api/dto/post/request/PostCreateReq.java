@@ -1,6 +1,7 @@
 package com.toyproject.board.api.dto.post.request;
 
 import com.toyproject.board.api.domain.admin.entity.Admin;
+import com.toyproject.board.api.domain.member.entity.Member;
 import com.toyproject.board.api.domain.post.entity.Post;
 import com.toyproject.board.api.enums.BoardType;
 import com.toyproject.board.api.enums.RoleType;
@@ -31,14 +32,8 @@ public record PostCreateReq(
 
 
 ) {
+    public Post toEntity(Admin admin, Member member, RoleType roleType) {
+        return Post.of(this.title, this.content, this.boardType, roleType, admin, member);
 
-    public Post toEntity(Admin admin, RoleType roleType) {
-        return Post.builder()
-                .title(this.title)
-                .content(this.content)
-                .boardType(this.boardType)
-                .roleType(roleType)
-                .adminWriterIdx(admin)
-                .build();
     }
 }

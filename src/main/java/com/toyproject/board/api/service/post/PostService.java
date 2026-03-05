@@ -1,5 +1,7 @@
 package com.toyproject.board.api.service.post;
 
+import com.toyproject.board.api.domain.member.entity.Member;
+import com.toyproject.board.api.domain.member.repository.MemberRepository;
 import com.toyproject.board.api.exception.ClientException;
 import com.toyproject.board.api.domain.admin.entity.Admin;
 import com.toyproject.board.api.domain.admin.repository.AdminRepository;
@@ -14,6 +16,7 @@ import com.toyproject.board.api.dto.upload.UploadsShowDto;
 import com.toyproject.board.api.enums.ExceptionType;
 import com.toyproject.board.api.enums.RoleType;
 import com.toyproject.board.api.enums.UploadType;
+import com.toyproject.board.api.service.upload.UploadService;
 import com.toyproject.board.api.utill.SecurityUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +36,8 @@ public class PostService {
 
     private final AdminRepository adminRepository;
     private final PostRepository postRepository;
-    private final UploadsRepository uploadsRepository;
+    private final UploadService uploadService;
+    private final MemberRepository memberRepository;
 
 
     public PostDTO showPost(Long postIdx, HttpServletRequest request) {
@@ -47,10 +51,7 @@ public class PostService {
             log.error("조회수 증사 실패 postIdx: {}", postIdx, e);
         }
         // 업로드 파일 매핑
-        List<Uploads> uploadsList = uploadsRepository.findAllByUploadMappingIdxAndUploadTypeOrderBySortOrderAsc(post.getIdx(), UploadType.POST);
-        List<UploadsShowDto> uploadsShowDtoList = uploadsList.stream()
-                .map(UploadsShowDto::from)
-                .toList();
+        List<UploadsShowDto> uploadsShowDtoList = uploadService.findAllByUploadMapping(postIdx, UploadType.POST);
 
         // DB 조회수 + Redis 실시간 합산
         long currentRedisView = viewCountService.getViewCount(postIdx);
@@ -60,23 +61,18 @@ public class PostService {
     }
 
     @Transactional
-    public void createPost(PostCreateReq req) {
-        // 작성자 정보 확인
-        Long currentMemberIdx = SecurityUtil.getRequiredCurrentIdx();
-        RoleType currentRoleType = SecurityUtil.getCurrentRoleType();
+    public void createPost(PostCreateReq req, Long userIdx, RoleType roleType) {
+        Admin admin = (roleType == RoleType.ADMIN)
+                ? findAdmin(userIdx)
+                : null;
+        Member member = (roleType == RoleType.USER)
+                ? findMember(userIdx)
+                : null;
 
-        //TODO 유저일때 처리
-        Admin admin = adminRepository.findById(currentMemberIdx)
-                .orElseThrow(() -> new ClientException(ExceptionType.NOT_FOUND_ADMIN));
-
-        // 게시물 저장
-        Post savePostData = postRepository.save(req.toEntity(admin, currentRoleType));
+        Post savePost = postRepository.save(req.toEntity(admin, member, roleType));
 
         // 게시물 이미지가 존재 하면 업로드테이블에 매핑
-        if (req.uploadIdxs() != null && !req.uploadIdxs().isEmpty()) {
-            List<Uploads> uploadsList = uploadsRepository.findAllById(req.uploadIdxs());
-            uploadsList.forEach(uploads -> uploads.modifyUploadMappingIdx(savePostData.getIdx()));
-        }
+        uploadService.confirmMapping(req.uploadIdxs(), savePost.getIdx(), userIdx, roleType, UploadType.POST);
 
     }
 
@@ -85,7 +81,7 @@ public class PostService {
         Long currentMemberIdx = SecurityUtil.getRequiredCurrentIdx();
         Post post = postRepository.findById(req.postIdx()).orElseThrow(() -> new ClientException(ExceptionType.BAD_REQUEST, "잘못된 정보"));
         // 작성자와 현재 사용자가 같은 확인
-        if (!post.getAdminWriterIdx().getIdx().equals(currentMemberIdx)) {
+        if (!post.getAdmin().getIdx().equals(currentMemberIdx)) {
             throw new ClientException(ExceptionType.FORBIDDEN);
         }
         post.update(req.title(), req.content(), req.boardType());
@@ -100,5 +96,13 @@ public class PostService {
 //            //TODO 유저 정보 확인 로직후 삭제 로직
 //        }
         postRepository.delete(post);
+    }
+
+    private Admin findAdmin(Long idx) {
+        return adminRepository.getReferenceById(idx);
+    }
+
+    private Member findMember(Long idx) {
+        return memberRepository.getReferenceById(idx);
     }
 }

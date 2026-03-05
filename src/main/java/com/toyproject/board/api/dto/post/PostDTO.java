@@ -58,7 +58,7 @@ public class PostDTO {
                 entity.getViewCount(),
                 entity.getBoardType(),
                 entity.getRoleType(),
-                entity.getAdminWriterIdx(),
+                entity.getAdmin(),
                 entity.getRgdt(),
                 entity.getUpdt()
         );
@@ -72,7 +72,7 @@ public class PostDTO {
                 viewCount,
                 entity.getBoardType(),
                 entity.getRoleType(),
-                entity.getAdminWriterIdx(),
+                entity.getAdmin(),
                 entity.getRgdt(),
                 entity.getUpdt(),
                 dtos

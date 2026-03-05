@@ -1,7 +1,9 @@
 package com.toyproject.board.api.domain.upload.entity;
 
 import com.toyproject.board.api.domain.base.DefaultTimeStampEntity;
+import com.toyproject.board.api.enums.ExceptionType;
 import com.toyproject.board.api.enums.UploadType;
+import com.toyproject.board.api.exception.ClientException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -64,9 +66,16 @@ public class Uploads extends DefaultTimeStampEntity {
 
     /**
      * uploadMappingIdx 매핑
-     * @param uploadMappingIdx 매핑될 Upload idx
      */
-    public void modifyUploadMappingIdx(Long uploadMappingIdx) {
+    public void confirmMappingIdx(Long uploadMappingIdx, UploadType uploadType) {
+        if (this.uploadType != uploadType) {
+            throw new ClientException(ExceptionType.BAD_REQUEST, "업로드 타입이 일치하지 않습니다.");
+        }
+
+        // 이미 매핑된 데이터인지 확인
+        if (this.uploadMappingIdx != null) {
+            throw new ClientException(ExceptionType.BAD_REQUEST, "이미 사용 중인 파일입니다.");
+        }
         this.uploadMappingIdx = uploadMappingIdx;
     }
 }

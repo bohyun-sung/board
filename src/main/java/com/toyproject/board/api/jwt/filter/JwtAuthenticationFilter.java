@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -85,9 +86,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
+        String method = request.getMethod();
 
-        return appSecurityProperties.getAllExcludes().stream()
-                .anyMatch(patten -> pathMatcher.match(patten, path));
+        boolean isCommonWhiteList = appSecurityProperties.getWhitelist().stream()
+                .anyMatch(pattern -> pathMatcher.match(pattern, path));
+        if (isCommonWhiteList) return true;
+
+        if (HttpMethod.GET.matches(method)) {
+            return appSecurityProperties.getGetWhitelist().stream()
+                    .anyMatch(pattern -> pathMatcher.match(pattern, path));
+        }
+
+        if (HttpMethod.POST.matches(method)) {
+            return appSecurityProperties.getPostWhitelist().stream()
+                    .anyMatch(pattern -> pathMatcher.match(pattern, path));
+        }
+        return false;
     }
 
     /**

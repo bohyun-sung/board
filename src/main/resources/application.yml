@@ -18,7 +18,7 @@ spring:
         highlight_sql: true         # SQL에 색상 부여 (터미널에서 가독성 향상)
         use_sql_comments: true      # 쿼리에 주석 추가
 
-    show-sql: true
+    show-sql: false
 
   # Message settings
   messages:

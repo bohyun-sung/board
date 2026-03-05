@@ -1,5 +1,6 @@
 package com.toyproject.board.api.service.upload;
 
+import com.toyproject.board.api.enums.RoleType;
 import com.toyproject.board.api.exception.ClientException;
 import com.toyproject.board.api.exception.ServerException;
 import com.toyproject.board.api.domain.upload.entity.Uploads;
@@ -42,7 +43,9 @@ public class S3Service {
 
     private final S3Template s3Template;
 
+    private final UploadService uploadService;
     private final UploadsRepository uploadsRepository;
+
 
     private static final String DATE_FORMAT = "yyyyMMddHHmmss";
 
@@ -59,11 +62,13 @@ public class S3Service {
     /**
      * 다중 업로드
      *
-     * @param files 업로드 파일
+     * @param files    업로드 파일
+     * @param userIdx
+     * @param roleType
      * @return 업로드 URL
      */
     @Transactional
-    public List<UploadsRes> uploadMultipleFiles(List<MultipartFile> files, UploadType uploadType) {
+    public List<UploadsRes> uploadMultipleFiles(List<MultipartFile> files, Long userIdx, RoleType roleType, UploadType uploadType) {
         if (files == null || files.isEmpty()) return Collections.emptyList();
 
         // 0~파일사이즈까지 루프 하여 순서 업로드
@@ -74,10 +79,14 @@ public class S3Service {
                     return upload(file, uploadType, sortOrder);
                 });
 
-        // 이미지 데이터 저장
+        // 업로드 데이터 저장
         List<Uploads> uploadsList = uploadsDtoStream.map(UploadsDto::toEntity).toList();
-
         List<Uploads> uploadsSaveData = uploadsRepository.saveAll(uploadsList);
+
+        // Redis에 게시물 등록자 정보 저장
+        for (Uploads uploadsSave : uploadsSaveData) {
+            uploadService.saveUploadOwner(uploadsSave.getIdx(), userIdx, roleType);
+        }
 
         return uploadsSaveData.stream()
                 .map(UploadsRes::from)
@@ -109,7 +118,7 @@ public class S3Service {
 
         String originalName = Normalizer.normalize(Objects.requireNonNull(file.getOriginalFilename()), Normalizer.Form.NFC);
         String fileName = generateS3Key(originalName);
-
+        // S3 업로드
         try (InputStream inputStream = file.getInputStream()) {
             S3Resource s3Resource = s3Template.upload(bucketName, fileName, inputStream);
             log.debug("Successfully uploaded to S3: {}", fileName);

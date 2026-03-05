@@ -23,9 +23,11 @@ public enum ExceptionType {
     UNAUTHORIZED_TOKEN_EMPTY(HttpStatus.UNAUTHORIZED, "token.empty"),
     // 403 FORBIDDEN
     FORBIDDEN(HttpStatus.FORBIDDEN, "forbidden"),
+    FORBIDDEN_UPLOAD_TIME_OUT(HttpStatus.FORBIDDEN, "forbidden.upload.time.out"),
     // 404 NOT_FOUND
     NOT_FOUND(HttpStatus.NOT_FOUND, "not.found"),
     NOT_FOUND_ADMIN(HttpStatus.NOT_FOUND, "not.found.admin"),
+    NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND, "not.found.member"),
     NOT_FOUND_EMAIL(HttpStatus.NOT_FOUND, "not.found.email"),
     NOT_FOUND_POST(HttpStatus.NOT_FOUND, "not.found.post"),
     // 409 CONFLICT

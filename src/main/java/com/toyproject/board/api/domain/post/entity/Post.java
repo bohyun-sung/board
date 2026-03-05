@@ -2,11 +2,11 @@ package com.toyproject.board.api.domain.post.entity;
 
 import com.toyproject.board.api.domain.admin.entity.Admin;
 import com.toyproject.board.api.domain.base.DefaultTimeStampEntity;
+import com.toyproject.board.api.domain.member.entity.Member;
 import com.toyproject.board.api.enums.BoardType;
 import com.toyproject.board.api.enums.RoleType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -41,23 +41,24 @@ public class Post extends DefaultTimeStampEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "admin_idx", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private Admin adminWriterIdx;
+    private Admin admin;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_idx", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Member member;
 
-    @Builder
-    @SuppressWarnings("unsed")
-    public Post(String title, String content, BoardType boardType, RoleType roleType, Admin adminWriterIdx) {
+    private Post(String title, String content, BoardType boardType, RoleType roleType, Admin admin, Member member) {
         this.title = title;
         this.content = content;
         this.boardType = boardType;
         this.roleType = roleType;
-        this.adminWriterIdx = adminWriterIdx;
+        this.admin = admin;
+        this.member = member;
     }
 
-    public void increaseViewCount() {
-        this.viewCount ++;
+    public static Post of(String title, String content, BoardType boardType, RoleType roleType, Admin admin, Member member) {
+        return new Post(title, content, boardType, roleType, admin, member);
     }
-
     public void update(String title, String content, BoardType boardType) {
         this.title = title;
         this.content = content;
