@@ -16,9 +16,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,14 +49,14 @@ public class PostController {
 
     @Operation(summary = "게시물 작성", description = "게시물 작성")
     @PostMapping
-    public Response<Void> createPost(@RequestBody @Valid PostCreateReq req) {
+    public Response<Void> createPost(@RequestBody @Validated PostCreateReq req) {
         postService.createPost(req);
         return Response.success();
     }
 
     @Operation(summary = "게시물 수정", description = "게시물 수정")
     @PatchMapping
-    public Response<Void> updatePost(@RequestBody @Valid PostUpdateReq req) {
+    public Response<Void> updatePost(@RequestBody @Validated PostUpdateReq req) {
         postService.updatePost(req);
         return Response.success();
     }
@@ -72,6 +72,5 @@ public class PostController {
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Response<List<UploadsRes>> uploadFiles(@RequestPart("files") List<MultipartFile> files) {
         return Response.success(s3Service.uploadMultipleFiles(files, UploadType.POST));
-
     }
 }

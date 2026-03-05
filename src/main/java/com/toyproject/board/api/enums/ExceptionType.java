@@ -27,6 +27,7 @@ public enum ExceptionType {
     NOT_FOUND(HttpStatus.NOT_FOUND, "not.found"),
     NOT_FOUND_ADMIN(HttpStatus.NOT_FOUND, "not.found.admin"),
     NOT_FOUND_EMAIL(HttpStatus.NOT_FOUND, "not.found.email"),
+    NOT_FOUND_POST(HttpStatus.NOT_FOUND, "not.found.post"),
     // 409 CONFLICT
     CONFLICT(HttpStatus.CONFLICT, "conflict"),
     CONFLICT_CREATE_DUPLICATE_ID(HttpStatus.CONFLICT, "duplicate.id"),

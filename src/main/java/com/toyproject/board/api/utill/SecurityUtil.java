@@ -13,7 +13,7 @@ public class SecurityUtil {
      * [로그인용] 로그인 안되었으면 예외 발생
      * @return 인가처리된 계정 idx 반환
      */
-    public static Long getCurrentMemberIdx() {
+    public static Long getRequiredCurrentIdx() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || auth.getPrincipal() instanceof String) {
             throw new ClientException(ExceptionType.UNAUTHORIZED);
@@ -27,7 +27,7 @@ public class SecurityUtil {
      * [비로그인 허용] 로그인 안되어있으면 null 반환
      * @return 비로그인 null 로그인 인가 처리된 계정 idx 반환
      */
-    public static Long getCurrentMemberIdxOptional() {
+    public static Long getOptionalCurrentIdx() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || auth.getPrincipal() instanceof String) {
             return null;

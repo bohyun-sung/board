@@ -17,11 +17,13 @@ import com.toyproject.board.api.enums.UploadType;
 import com.toyproject.board.api.utill.SecurityUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
@@ -36,22 +38,31 @@ public class PostService {
 
     public PostDTO showPost(Long postIdx, HttpServletRequest request) {
         // 게시물 정보 조회
-        Post post = postRepository.findById(postIdx).orElseThrow(() -> new ClientException(ExceptionType.BAD_REQUEST, "잘못된 정보"));
+        Post post = postRepository.findById(postIdx)
+                .orElseThrow(() -> new ClientException(ExceptionType.NOT_FOUND_POST, new Object[]{postIdx}));
         // 게시물 조회수 증가
-        viewCountService.increaseViewCountAsync(postIdx, request);
+        try {
+            viewCountService.increaseViewCountAsync(postIdx, request);
+        } catch (Exception e) {
+            log.error("조회수 증사 실패 postIdx: {}", postIdx, e);
+        }
         // 업로드 파일 매핑
         List<Uploads> uploadsList = uploadsRepository.findAllByUploadMappingIdxAndUploadTypeOrderBySortOrderAsc(post.getIdx(), UploadType.POST);
         List<UploadsShowDto> uploadsShowDtoList = uploadsList.stream()
                 .map(UploadsShowDto::from)
                 .toList();
-        Integer totalViewCount = Math.toIntExact(post.getViewCount() + viewCountService.getViewCount(postIdx));
+
+        // DB 조회수 + Redis 실시간 합산
+        long currentRedisView = viewCountService.getViewCount(postIdx);
+        Integer totalViewCount = Math.toIntExact(post.getViewCount() + currentRedisView);
+
         return PostDTO.fromAndUploadsAndViewCount(post, uploadsShowDtoList, totalViewCount);
     }
 
     @Transactional
     public void createPost(PostCreateReq req) {
         // 작성자 정보 확인
-        Long currentMemberIdx = SecurityUtil.getCurrentMemberIdx();
+        Long currentMemberIdx = SecurityUtil.getRequiredCurrentIdx();
         RoleType currentRoleType = SecurityUtil.getCurrentRoleType();
 
         //TODO 유저일때 처리
@@ -71,7 +82,7 @@ public class PostService {
 
     @Transactional
     public void updatePost(PostUpdateReq req) {
-        Long currentMemberIdx = SecurityUtil.getCurrentMemberIdx();
+        Long currentMemberIdx = SecurityUtil.getRequiredCurrentIdx();
         Post post = postRepository.findById(req.postIdx()).orElseThrow(() -> new ClientException(ExceptionType.BAD_REQUEST, "잘못된 정보"));
         // 작성자와 현재 사용자가 같은 확인
         if (!post.getAdminWriterIdx().getIdx().equals(currentMemberIdx)) {
