@@ -4,11 +4,10 @@ import com.toyproject.board.api.config.properties.JwtTokenProperty;
 import com.toyproject.board.api.constants.AuthConstants;
 import com.toyproject.board.api.jwt.entyPoint.JwtAuthenticationEntryPoint;
 import com.toyproject.board.api.jwt.filter.JwtAuthenticationFilter;
-import com.toyproject.board.api.security.oauth.CustomOAuth2UserService;
 import com.toyproject.board.api.security.CustomUserDetailsService;
+import com.toyproject.board.api.security.oauth.CustomOAuth2UserService;
 import com.toyproject.board.api.security.oauth.OAuth2SuccessHandler;
 import com.toyproject.board.api.security.properties.AppSecurityProperties;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,14 +51,14 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(handler -> handler.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers(appSecurityProperties.getWhitelist().toArray(String[]::new)).permitAll()
                                 .requestMatchers(HttpMethod.GET, appSecurityProperties.getGetWhitelist().toArray(String[]::new)).permitAll()
                                 .requestMatchers(HttpMethod.POST, appSecurityProperties.getPostWhitelist().toArray(String[]::new)).permitAll()
                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                                .anyRequest()
-                                .authenticated()
+                                .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
@@ -67,8 +66,7 @@ public class SecurityConfig {
                 )
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProperty, customUserDetailsService, appSecurityProperties), UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(handler -> handler.authenticationEntryPoint(jwtAuthenticationEntryPoint));
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProperty, customUserDetailsService, appSecurityProperties, jwtAuthenticationEntryPoint), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

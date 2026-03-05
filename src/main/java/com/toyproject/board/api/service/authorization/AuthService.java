@@ -18,10 +18,12 @@ import com.toyproject.board.api.enums.RoleType;
 import com.toyproject.board.api.jwt.RefreshToken;
 import com.toyproject.board.api.jwt.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
@@ -98,15 +100,19 @@ public class AuthService {
 
     @Transactional
     public TokenDto reissue(String oldRefreshToken) {
+        log.info("##Service reissue Start - Token: {}", oldRefreshToken);
         // 토큰 유효성 검사
         if (!jwtTokenProperty.validateToken(oldRefreshToken)) {
             throw new ClientException(ExceptionType.UNAUTHORIZED_TOKEN_INVALID);
         }
-
+        log.info("##TWO Service reissue Start - Token: {}", oldRefreshToken);
         // Redis에 토큰 존재 여부 확인후 삭제
         RefreshToken savedToken = refreshTokenRepository.findByToken(oldRefreshToken)
-                .orElseThrow(() -> new ClientException(ExceptionType.UNAUTHORIZED_TOKEN_NOT_FOUND));
-
+                .orElseThrow(() -> {
+                    log.error("## Redis에 토큰이 없음!!"); // 이 로그가 찍히는지 확인
+                    return new ClientException(ExceptionType.UNAUTHORIZED_TOKEN_NOT_FOUND);
+                });
+        log.info("## Redis 조회 성공! 삭제 진행: {}", savedToken.getUserIdx());
         refreshTokenRepository.delete(savedToken);
 
         Long userIdx = savedToken.getUserIdx();
