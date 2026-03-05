@@ -3,6 +3,7 @@ package com.toyproject.board.api.jwt.filter;
 import com.toyproject.board.api.config.exception.ClientException;
 import com.toyproject.board.api.config.properties.JwtTokenProperty;
 import com.toyproject.board.api.constants.AuthConstants;
+import com.toyproject.board.api.constants.RedisConstants;
 import com.toyproject.board.api.enums.ExceptionType;
 import com.toyproject.board.api.jwt.JwtUserInfo;
 import com.toyproject.board.api.jwt.entyPoint.JwtAuthenticationEntryPoint;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,46 +35,45 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final AppSecurityProperties appSecurityProperties;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         String token = resolve(request);
-        log.info("Extracted Token: {}", token);
-        try {
-            if (StringUtils.hasText(token)) {
-                if (jwtTokenProperty.validateToken(token)) {
-                    // 토큰에서 식별자 추출
-                    JwtUserInfo userInfo = jwtTokenProperty.getUserInfo(token);
-                    // ADMIN 또는 MEMBER 조회
-                    UserDetails userDetails = customUserDetailsService.loadUserByUserInfo(userInfo);
 
-                    log.debug("User authenticated: {}, Authorities: {}", userDetails.getUsername(), userDetails.getAuthorities());
-                    // 인증 객체 생성 및 권한 및 정보 설정
-                    UsernamePasswordAuthenticationToken authenticationToken =
-                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    // 요청된 상세 정보를 인증 객체에 바인딩
-                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    // SecurityContext에 인증 정보 저장
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        try {
+            // 1. 토큰이 있는 경우 검증 진행
+            if (StringUtils.hasText(token)) {
+                // JWT 기본 검증 (서명, 만료 등)
+                if (jwtTokenProperty.validateToken(token)) {
+
+                    // 2. 블랙리스트(로그아웃 토큰) 검증
+                    if (isBlacklisted(token)) {
+                        log.warn("로그아웃된 토큰으로 접근 시도 발견: {}", token);
+                        handleAuthenticationException(request, response, "token.logout");
+                        return;
+                    }
+
+                    // 3. 인증 객체 생성 및 컨텍스트 저장
+                    processAuthentication(request, token);
 
                     filterChain.doFilter(request, response);
                     return;
                 }
+                // validateToken이 false를 리턴하는 경우 (예외를 던지지 않을 때를 대비)
                 throw new ClientException(ExceptionType.UNAUTHORIZED_TOKEN_INVALID);
             }
+
+            // 4. 토큰이 없는 경우 (SecurityConfig의 설정에 따라 permitAll 혹은 EntryPoint로 흐름이 넘어감)
             filterChain.doFilter(request, response);
+
         } catch (ClientException e) {
-            logger.error("Could not set user authentication in security context", e);
-            SecurityContextHolder.clearContext();
-            request.setAttribute("exception", e.getMessage());
-            jwtAuthenticationEntryPoint.commence(request, response, null);
-        } catch (
-                Exception e) {
-            logger.error("Authentication error: ", e);
-            SecurityContextHolder.clearContext();
-            request.setAttribute("exception", e.getMessage());
-            jwtAuthenticationEntryPoint.commence(request, response, null);
+            log.error("JWT Filter ClientException: {}", e.getMessage());
+            handleAuthenticationException(request, response, e.getMessage());
+        } catch (Exception e) {
+            log.error("JWT Filter Unexpected Exception: ", e);
+            handleAuthenticationException(request, response, "server.error");
         }
     }
 
@@ -99,5 +100,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         return null; // 에러 처리
     }
+    /**
+     * Redis 블랙리스트 여부 확인
+     */
+    private boolean isBlacklisted(String token) {
+        // RedisTemplate의 get 결과가 존재하면 로그아웃된 토큰임
+        return redisTemplate.hasKey(RedisConstants.LOGOUT_ACCESS_TOKEN + token);
+    }
 
+    /**
+     * 인증 프로세스 공통 로직 분리
+     */
+    private void processAuthentication(HttpServletRequest request, String token) {
+        JwtUserInfo userInfo = jwtTokenProperty.getUserInfo(token);
+        UserDetails userDetails = customUserDetailsService.loadUserByUserInfo(userInfo);
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    /**
+     * 인증 실패 시 공통 예외 처리
+     */
+    private void handleAuthenticationException(HttpServletRequest request, HttpServletResponse response, String exceptionKey) throws IOException, ServletException {
+        SecurityContextHolder.clearContext();
+        request.setAttribute("exception", exceptionKey);
+        jwtAuthenticationEntryPoint.commence(request, response, null);
+    }
 }

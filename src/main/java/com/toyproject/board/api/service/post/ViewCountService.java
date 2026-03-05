@@ -8,14 +8,14 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
+import static com.toyproject.board.api.constants.RedisConstants.USER_VIEW_CHECK_KEY;
+import static com.toyproject.board.api.constants.RedisConstants.VIEW_COUNT_KEY;
+
 @Service
 @RequiredArgsConstructor
 public class ViewCountService {
 
     private final RedisTemplate<String, String> redisTemplate;
-
-    private static final String VIEW_COUNT_KEY = "post:view:count:";
-    private static final String USER_VIEW_CHECK_KEY = "post:view:user:";
 
     /**
      * 게시물 조회수 Redis에 저장

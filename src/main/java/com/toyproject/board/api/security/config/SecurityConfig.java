@@ -11,6 +11,7 @@ import com.toyproject.board.api.security.properties.AppSecurityProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -38,6 +39,7 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final AppSecurityProperties appSecurityProperties;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final RedisTemplate<String, String> redisTemplate;
 
 
     @Bean
@@ -66,7 +68,7 @@ public class SecurityConfig {
                 )
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProperty, customUserDetailsService, appSecurityProperties, jwtAuthenticationEntryPoint), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProperty, customUserDetailsService, appSecurityProperties, jwtAuthenticationEntryPoint, redisTemplate), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

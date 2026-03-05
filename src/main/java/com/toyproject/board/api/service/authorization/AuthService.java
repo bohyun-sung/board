@@ -19,9 +19,15 @@ import com.toyproject.board.api.jwt.RefreshToken;
 import com.toyproject.board.api.jwt.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.concurrent.TimeUnit;
+
+import static com.toyproject.board.api.constants.RedisConstants.LOGOUT;
+import static com.toyproject.board.api.constants.RedisConstants.LOGOUT_ACCESS_TOKEN;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -35,6 +41,8 @@ public class AuthService {
     private final AdminRepository adminRepository;
     private final MemberRepository memberRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Transactional
     public AdminLoginDto loginAdmin(AdminLoginReq req) {
@@ -99,13 +107,31 @@ public class AuthService {
     }
 
     @Transactional
-    public TokenDto reissue(String oldRefreshToken) {
-        log.info("##Service reissue Start - Token: {}", oldRefreshToken);
+    public void logoutUser(String accessToken, String refreshToken) {
         // 토큰 유효성 검사
-        if (!jwtTokenProperty.validateToken(oldRefreshToken)) {
-            throw new ClientException(ExceptionType.UNAUTHORIZED_TOKEN_INVALID);
+        validRefreshToken(refreshToken);
+        // Redis 토큰 가져오기
+        RefreshToken saveToken = refreshTokenRepository.findByToken(refreshToken)
+                .orElseThrow(() -> new ClientException(ExceptionType.UNAUTHORIZED_TOKEN_NOT_FOUND));
+        // Redis에 저장된 토큰 삭제
+        refreshTokenRepository.delete(saveToken);
+
+        log.info("Logout successful userIdx: {}, Role: {}", saveToken.getUserIdx(), saveToken.getRoleType());
+
+        long expirationTime = jwtTokenProperty.getExpiration(accessToken);
+        long now = System.currentTimeMillis();
+        long ttl = (expirationTime - now) / 1000;
+
+        if(ttl > 0) {
+            redisTemplate.opsForValue().set(LOGOUT_ACCESS_TOKEN + accessToken, LOGOUT, ttl, TimeUnit.SECONDS);
         }
-        log.info("##TWO Service reissue Start - Token: {}", oldRefreshToken);
+
+    }
+
+    @Transactional
+    public TokenDto reissue(String oldRefreshToken) {
+        // 토큰 유효성 검사
+        validRefreshToken(oldRefreshToken);
         // Redis에 토큰 존재 여부 확인후 삭제
         RefreshToken savedToken = refreshTokenRepository.findByToken(oldRefreshToken)
                 .orElseThrow(() -> {
@@ -165,5 +191,13 @@ public class AuthService {
         }
     }
 
-
+    /**
+     * 리프레쉬 토큰 유효성 검사
+     * @param refreshToken refreshToken
+     */
+    private void validRefreshToken(String refreshToken) {
+        if (!jwtTokenProperty.validateToken(refreshToken)) {
+            throw new ClientException(ExceptionType.UNAUTHORIZED_TOKEN_INVALID);
+        }
+    }
 }

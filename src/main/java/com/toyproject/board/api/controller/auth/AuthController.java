@@ -100,6 +100,27 @@ public class AuthController {
         return Response.success();
     }
 
+    @PostMapping("/logout")
+    public Response<Void> logoutUser(
+            @RequestHeader(AuthConstants.AUTHORIZATION) String bearerToken,
+            @CookieValue(name = AuthConstants.REFRESH_TOKEN) String refreshToken,
+            HttpServletResponse response) {
+        // "Bearer " 제거
+        String accessToken = bearerToken.substring(7);
+        authService.logoutUser(accessToken, refreshToken);
+
+        ResponseCookie cookie = ResponseCookie.from(AuthConstants.REFRESH_TOKEN, "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        return Response.success();
+    }
+
     @Operation(summary = "리프레쉬 토큰 재발급", description = "신규 엑세스 토큰 && 신규 리프레쉬 토큰 발급")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "토큰 재발급 성공"),

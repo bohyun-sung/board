@@ -68,6 +68,9 @@ public class JwtTokenProperty {
         return JwtUserInfo.from(userIdx, roleType);
     }
 
+    /**
+     * jwt 검증
+     */
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(appJwtProperties.getSecretAsObject()).build().parseClaimsJws(token);
@@ -85,5 +88,20 @@ public class JwtTokenProperty {
             log.error("토큰이 비어있거나 잘못된 경우: {}", e.getMessage());
             throw new ClientException(ExceptionType.UNAUTHORIZED_TOKEN_EMPTY);
         }
+    }
+
+    /**
+     * 엑세스 토큰의 남은시간 반환
+     * @param accessToken accessToken
+     * @return 토큰의 남은시간
+     */
+    public long getExpiration(String accessToken) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(appJwtProperties.getSecretAsObject())
+                .build()
+                .parseClaimsJws(accessToken)
+                .getBody();
+
+        return claims.getExpiration().getTime();
     }
 }
