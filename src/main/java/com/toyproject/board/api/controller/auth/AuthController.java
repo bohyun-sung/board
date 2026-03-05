@@ -14,6 +14,7 @@ import com.toyproject.board.api.dto.member.request.MemberCreateReq;
 import com.toyproject.board.api.jwt.properties.AppJwtProperties;
 import com.toyproject.board.api.service.authorization.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -43,15 +44,7 @@ public class AuthController {
 
         AdminLoginDto adminLoginDto = authService.loginAdmin(req);
 
-        ResponseCookie cookie = ResponseCookie.from(AuthConstants.REFRESH_TOKEN, adminLoginDto.getTokenDto().refreshToken())
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(appJwtProperties.getRefreshTTL()) // 14일
-                .sameSite("Strict")
-                .build();
-
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        expireRefreshTokenCookie(response, adminLoginDto.getTokenDto().refreshToken(), appJwtProperties.getRefreshTTL());
 
         return Response.success(AdminLoginRes.from(adminLoginDto));
     }
@@ -65,15 +58,7 @@ public class AuthController {
     public Response<MemberLoginRes> loginMember(@RequestBody @Validated MemberLoginReq req, HttpServletResponse response) {
         MemberLoginDto memberLoginDto = authService.loginMember(req);
 
-        ResponseCookie cookie = ResponseCookie.from(AuthConstants.REFRESH_TOKEN, memberLoginDto.getTokenDto().refreshToken())
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(appJwtProperties.getRefreshTTL()) // 14일
-                .sameSite("Strict")
-                .build();
-
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        expireRefreshTokenCookie(response, memberLoginDto.getTokenDto().refreshToken(), appJwtProperties.getRefreshTTL());
 
         return Response.success(MemberLoginRes.from(memberLoginDto));
     }
@@ -100,23 +85,20 @@ public class AuthController {
         return Response.success();
     }
 
+    @Operation(summary = "로그아웃", description = "RefreshToken 제거 및 accessToken 블랙리스트 설정")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "로그아웃 성공"),
+            @ApiResponse(responseCode = "401", description = "인증 실패 (유효하지 않은 토큰 혹은 정보 없음)")
+    })
     @PostMapping("/logout")
     public Response<Void> logoutUser(
-            @RequestHeader(AuthConstants.AUTHORIZATION) String bearerToken,
-            @CookieValue(name = AuthConstants.REFRESH_TOKEN) String refreshToken,
+            @RequestHeader(AuthConstants.AUTHORIZATION) @Parameter(hidden = true) String bearerToken,
+            @CookieValue(name = AuthConstants.REFRESH_TOKEN, required = false) @Parameter(hidden = true) String refreshToken,
             HttpServletResponse response) {
-        // "Bearer " 제거
-        String accessToken = bearerToken.substring(7);
-        authService.logoutUser(accessToken, refreshToken);
 
-        ResponseCookie cookie = ResponseCookie.from(AuthConstants.REFRESH_TOKEN, "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(0)
-                .build();
+        authService.logoutUser(bearerToken, refreshToken);
 
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        expireRefreshTokenCookie(response, "", AuthConstants.TTL_ZERO);
 
         return Response.success();
     }
@@ -130,14 +112,23 @@ public class AuthController {
     public Response<TokenDto> reissue(@CookieValue(name = AuthConstants.REFRESH_TOKEN) String refreshToken, HttpServletResponse response) {
         TokenDto tokenDto = authService.reissue(refreshToken);
 
-        ResponseCookie cookie = ResponseCookie.from(AuthConstants.REFRESH_TOKEN, tokenDto.refreshToken())
+        expireRefreshTokenCookie(response, tokenDto.refreshToken(), appJwtProperties.getRefreshTTL());
+
+        return Response.success(tokenDto);
+    }
+
+    /**
+     * RefreshToken cookie 설정
+     */
+    private void expireRefreshTokenCookie(HttpServletResponse response, String refreshToken, Long refreshTTL) {
+        ResponseCookie cookie = ResponseCookie.from(AuthConstants.REFRESH_TOKEN, refreshToken)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .maxAge(appJwtProperties.getRefreshTTL())
+                .maxAge(refreshTTL) // 14일
+                .sameSite("Strict")
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-        return Response.success(tokenDto);
     }
 }

@@ -1,6 +1,7 @@
 package com.toyproject.board.api.config.properties;
 
 import com.toyproject.board.api.config.exception.ClientException;
+import com.toyproject.board.api.constants.AuthConstants;
 import com.toyproject.board.api.enums.ExceptionType;
 import com.toyproject.board.api.enums.RoleType;
 import com.toyproject.board.api.jwt.JwtUserInfo;
@@ -9,6 +10,7 @@ import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.Date;
 
@@ -103,5 +105,15 @@ public class JwtTokenProperty {
                 .getBody();
 
         return claims.getExpiration().getTime();
+    }
+
+    /**
+     * Bearer 토큰에서 실제 토큰 값만 추출
+     */
+    public String resolveToken(String bearerToken) {
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(AuthConstants.BEARER_PREFIX)) {
+            return bearerToken.substring(AuthConstants.BEARER_PREFIX.length());
+        }
+        return null;
     }
 }

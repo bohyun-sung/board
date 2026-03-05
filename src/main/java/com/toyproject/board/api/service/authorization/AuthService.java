@@ -2,6 +2,7 @@ package com.toyproject.board.api.service.authorization;
 
 import com.toyproject.board.api.config.exception.ClientException;
 import com.toyproject.board.api.config.properties.JwtTokenProperty;
+import com.toyproject.board.api.constants.AuthConstants;
 import com.toyproject.board.api.domain.admin.entity.Admin;
 import com.toyproject.board.api.domain.admin.repository.AdminRepository;
 import com.toyproject.board.api.domain.member.entity.Member;
@@ -23,6 +24,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -107,8 +109,12 @@ public class AuthService {
     }
 
     @Transactional
-    public void logoutUser(String accessToken, String refreshToken) {
-        // 토큰 유효성 검사
+    public void logoutUser(String bearerToken, String refreshToken) {
+        String accessToken = jwtTokenProperty.resolveToken(bearerToken);
+        log.info("## 로그아웃 시도 - AT: {}, RT: {}", accessToken, refreshToken);
+        // 엑세스 토큰 유효성 검사
+        validRefreshToken(accessToken);
+        // 리프레쉬 토큰 유효성 검사
         validRefreshToken(refreshToken);
         // Redis 토큰 가져오기
         RefreshToken saveToken = refreshTokenRepository.findByToken(refreshToken)
@@ -117,7 +123,7 @@ public class AuthService {
         refreshTokenRepository.delete(saveToken);
 
         log.info("Logout successful userIdx: {}, Role: {}", saveToken.getUserIdx(), saveToken.getRoleType());
-
+        // RefreshToken 제거후 accessToken은 블랙리스트 처리
         long expirationTime = jwtTokenProperty.getExpiration(accessToken);
         long now = System.currentTimeMillis();
         long ttl = (expirationTime - now) / 1000;
@@ -200,4 +206,5 @@ public class AuthService {
             throw new ClientException(ExceptionType.UNAUTHORIZED_TOKEN_INVALID);
         }
     }
+
 }
