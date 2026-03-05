@@ -6,16 +6,37 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ExceptionType {
 
-    BAD_REQUEST(HttpStatus.BAD_REQUEST),
-    UNAUTHORIZED(HttpStatus.UNAUTHORIZED),
-    FORBIDDEN(HttpStatus.FORBIDDEN),
-    NOT_FOUND(HttpStatus.NOT_FOUND),
-    CONFLICT(HttpStatus.CONFLICT),
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR),
+    // 400 BAD_REQUEST
+    BAD_REQUEST(HttpStatus.BAD_REQUEST, "bad.request"),
+    BAD_REQUEST_PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "password.mismatch"),
+    BAD_REQUEST_EMPTY_FILE(HttpStatus.BAD_REQUEST, "empty.file"),
+    BAD_REQUEST_FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "file.size.exceeded"),
+
+    // 401 UNAUTHORIZED
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "unauthorized"),
+    UNAUTHORIZED_LOGIN_FAIL_ADMIN(HttpStatus.UNAUTHORIZED, "Login.fail.admin"),
+    UNAUTHORIZED_LOGIN_FAIL_MEMBER(HttpStatus.UNAUTHORIZED, "Login.fail.member"),
+    UNAUTHORIZED_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "token.invalid"),
+    UNAUTHORIZED_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "token.notFound"),
+    // 403 FORBIDDEN
+    FORBIDDEN(HttpStatus.FORBIDDEN, "forbidden"),
+    // 404 NOT_FOUND
+    NOT_FOUND(HttpStatus.NOT_FOUND, "not.found"),
+    NOT_FOUND_ADMIN(HttpStatus.NOT_FOUND, "not.found.admin"),
+    NOT_FOUND_EMAIL(HttpStatus.NOT_FOUND, "not.found.email"),
+    // 409 CONFLICT
+    CONFLICT(HttpStatus.CONFLICT, "conflict"),
+    CONFLICT_CREATE_DUPLICATE_ID(HttpStatus.CONFLICT, "duplicate.id"),
+    CONFLICT_CREATE_DUPLICATE_EMAIL(HttpStatus.CONFLICT, "duplicate.email"),
+    // 500 INTERNAL_SERVER_ERROR
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "internal.server.error"),
+    INTERNAL_SERVER_ERROR_FILE_UPLOAD(HttpStatus.INTERNAL_SERVER_ERROR, "file.upload"),
     ;
     private final HttpStatus httpStatus;
+    private final String messageKey;
 
-    ExceptionType(HttpStatus httpStatus) {
+    ExceptionType(HttpStatus httpStatus, String messageKey) {
         this.httpStatus = httpStatus;
+        this.messageKey = messageKey;
     }
 }

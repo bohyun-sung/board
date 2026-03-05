@@ -32,7 +32,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -126,8 +125,8 @@ public class S3Service {
 
         } catch (IOException e) {
             log.error("S3 upload failed for file: {}", originalName, e);
-            throw new ServerException(ExceptionType.INTERNAL_SERVER_ERROR,
-                    String.format("파일 업로드 중 오류 발생: [%s]", originalName));
+            throw new ServerException(ExceptionType.INTERNAL_SERVER_ERROR_FILE_UPLOAD,
+                    new Object[]{originalName});
         }
     }
 
@@ -189,12 +188,12 @@ public class S3Service {
      */
     private void validateFile(MultipartFile file) {
         if (file.isEmpty()) {
-            throw new ClientException(ExceptionType.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다");
+            throw new ClientException(ExceptionType.BAD_REQUEST_EMPTY_FILE);
         }
 
         if (file.getSize() > MAX_FILE_SIZE) {
-            throw new ClientException(ExceptionType.BAD_REQUEST,
-                    String.format("파일 용량이 제한(10MB)을 초과했습니다 (현재: %d bytes)", file.getSize()));
+            throw new ClientException(ExceptionType.BAD_REQUEST_FILE_SIZE_EXCEEDED,
+                    new Object[]{file.getSize()});
         }
 
         String extension = StringUtils.getFilenameExtension(file.getOriginalFilename());
@@ -205,6 +204,7 @@ public class S3Service {
 
     /**
      * 업로드 파일 썸네일 생성
+     *
      * @param file 업로드 파일
      * @return 썸내일 url
      */
@@ -212,7 +212,7 @@ public class S3Service {
         String thumbName = "s_" + generateS3Key(file.getOriginalFilename());
 
         try (InputStream inputStream = file.getInputStream();
-             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()){
+             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
 
             Thumbnails.of(inputStream)
                     .size(200, 200)
@@ -220,7 +220,7 @@ public class S3Service {
                     .toOutputStream(byteArrayOutputStream);
 
             byte[] bytes = byteArrayOutputStream.toByteArray();
-            try (ByteArrayInputStream thumbInputStream = new ByteArrayInputStream(bytes)){
+            try (ByteArrayInputStream thumbInputStream = new ByteArrayInputStream(bytes)) {
                 S3Resource s3Resource = s3Template.upload(bucketName, thumbName, thumbInputStream);
                 return s3Resource.getURL().toString();
             }

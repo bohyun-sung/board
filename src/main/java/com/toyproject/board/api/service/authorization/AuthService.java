@@ -38,7 +38,7 @@ public class AuthService {
     public AdminLoginDto loginAdmin(AdminLoginReq req) {
         // 관리자 조회
         Admin admin = adminRepository.findByUserId(req.userId())
-                .orElseThrow(() -> new ClientException(ExceptionType.UNAUTHORIZED, "아이디 또는 비밀번호가 일치하지 않습니다"));
+                .orElseThrow(() -> new ClientException(ExceptionType.UNAUTHORIZED_LOGIN_FAIL_ADMIN));
         // 비밀번호 검증
         validatePasswordMatch(req.password(), admin.getPassword(), admin.getRoleType());
         // 토큰 생성
@@ -50,7 +50,7 @@ public class AuthService {
     public MemberLoginDto loginMember(MemberLoginReq req) {
         // 멤버 조회
         Member member = memberRepository.findByEmail(req.email())
-                .orElseThrow(() -> new ClientException(ExceptionType.UNAUTHORIZED, "이메일 또는 비밀번호가 일치하지 않습니다"));
+                .orElseThrow(() -> new ClientException(ExceptionType.UNAUTHORIZED_LOGIN_FAIL_MEMBER));
         // 비밀번호 검증
         validatePasswordMatch(req.password(), member.getPassword(), member.getRoleType());
         TokenDto tokenDto = tokenCreateAndSave(member.getIdx(), member.getRoleType());
@@ -65,7 +65,7 @@ public class AuthService {
         boolean isDuplicated = adminRepository.existsByUserId(req.userId());
 
         if (isDuplicated) {
-            throw new ClientException(ExceptionType.CONFLICT, "이미 사용 중인 아이디입니다");
+            throw new ClientException(ExceptionType.CONFLICT_CREATE_DUPLICATE_ID);
         }
 
         // 비밀번호 암호화
@@ -86,7 +86,7 @@ public class AuthService {
         boolean isDuplicated = memberRepository.existsByEmail(req.email());
 
         if (isDuplicated) {
-            throw new ClientException(ExceptionType.CONFLICT, "이미 사용 중인 이메일입니다");
+            throw new ClientException(ExceptionType.CONFLICT_CREATE_DUPLICATE_EMAIL);
         }
         // 비밀번호 암호화
         String encodePassword = passwordEncoder.encode(req.password());
@@ -100,12 +100,12 @@ public class AuthService {
     public TokenDto reissue(String oldRefreshToken) {
         // 토큰 유효성 검사
         if (!jwtTokenProperty.validateToken(oldRefreshToken)) {
-            throw new ClientException(ExceptionType.UNAUTHORIZED, "리프레시 토큰이 만료되었거나 유효하지 않습니다");
+            throw new ClientException(ExceptionType.UNAUTHORIZED_TOKEN_INVALID);
         }
 
         // Redis에 토큰 존재 여부 확인후 삭제
         RefreshToken savedToken = refreshTokenRepository.findByToken(oldRefreshToken)
-                .orElseThrow(() -> new ClientException(ExceptionType.UNAUTHORIZED, "토큰 정보를 찾을 수 없습니다"));
+                .orElseThrow(() -> new ClientException(ExceptionType.UNAUTHORIZED_TOKEN_NOT_FOUND));
 
         refreshTokenRepository.delete(savedToken);
 
@@ -125,9 +125,9 @@ public class AuthService {
     private void validatePasswordMatch(String reqPassword, String encodedPassword, RoleType roleType) {
         if (!passwordEncoder.matches(reqPassword, encodedPassword)) {
             if (roleType == RoleType.ADMIN) {
-                throw new ClientException(ExceptionType.UNAUTHORIZED, "아이디 또는 비밀번호가 일치하지 않습니다");
+                throw new ClientException(ExceptionType.UNAUTHORIZED_LOGIN_FAIL_ADMIN);
             }
-            throw new ClientException(ExceptionType.UNAUTHORIZED, "이메일 또는 비밀번호가 일치하지 않습니다");
+            throw new ClientException(ExceptionType.UNAUTHORIZED_LOGIN_FAIL_MEMBER);
         }
     }
 
@@ -155,7 +155,7 @@ public class AuthService {
      */
     private void passwordCheck(String password, String passwordCheck) {
         if (!password.equals(passwordCheck)) {
-            throw new ClientException(ExceptionType.BAD_REQUEST, "비밀 번호가 일치하지 않습니다");
+            throw new ClientException(ExceptionType.BAD_REQUEST_PASSWORD_MISMATCH);
         }
     }
 

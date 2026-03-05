@@ -16,7 +16,7 @@ public class SecurityUtil {
     public static Long getCurrentMemberIdx() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || auth.getPrincipal() instanceof String) {
-            throw new ClientException(ExceptionType.UNAUTHORIZED, "로그인이 필요합니다");
+            throw new ClientException(ExceptionType.UNAUTHORIZED);
         }
 
         UserPrincipal userPrincipal = (UserPrincipal) auth.getPrincipal();

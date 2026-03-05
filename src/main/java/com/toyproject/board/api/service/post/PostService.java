@@ -56,7 +56,7 @@ public class PostService {
 
         //TODO 유저일때 처리
         Admin admin = adminRepository.findById(currentMemberIdx)
-                .orElseThrow(() -> new ClientException(ExceptionType.NOT_FOUND, "존재하지않는 관리자 입니다"));
+                .orElseThrow(() -> new ClientException(ExceptionType.NOT_FOUND_ADMIN));
 
         // 게시물 저장
         Post savePostData = postRepository.save(req.toEntity(admin, currentRoleType));
@@ -75,7 +75,7 @@ public class PostService {
         Post post = postRepository.findById(req.postIdx()).orElseThrow(() -> new ClientException(ExceptionType.BAD_REQUEST, "잘못된 정보"));
         // 작성자와 현재 사용자가 같은 확인
         if (!post.getAdminWriterIdx().getIdx().equals(currentMemberIdx)) {
-            throw new ClientException(ExceptionType.FORBIDDEN, "권한이 없습니다.");
+            throw new ClientException(ExceptionType.FORBIDDEN);
         }
         post.update(req.title(), req.content(), req.boardType());
     }

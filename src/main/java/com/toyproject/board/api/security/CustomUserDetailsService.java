@@ -33,11 +33,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUserInfo(JwtUserInfo userInfo) throws UsernameNotFoundException {
         if (userInfo.getRoleType() == RoleType.ADMIN) {
             Admin admin = adminRepository.findById(userInfo.getUserIdx())
-                    .orElseThrow(() -> new ClientException(ExceptionType.NOT_FOUND, "존재 하지 않는 관리자입니다"));
+                    .orElseThrow(() -> new ClientException(ExceptionType.NOT_FOUND_ADMIN));
             return new UserPrincipal(admin);
         }
         Member member = memberRepository.findById(userInfo.getUserIdx())
-                .orElseThrow(() -> new ClientException(ExceptionType.NOT_FOUND, "해당 이메일을 찾을 수 없습니다"));
+                .orElseThrow(() -> new ClientException(ExceptionType.NOT_FOUND_EMAIL, "해당 이메일을 찾을 수 없습니다"));
         return new UserPrincipal(member);
 
     }

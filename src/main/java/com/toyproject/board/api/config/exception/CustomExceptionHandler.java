@@ -1,7 +1,11 @@
 package com.toyproject.board.api.config.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -9,22 +13,37 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
+@RequiredArgsConstructor
 @RestControllerAdvice
 public class CustomExceptionHandler {
+
+    private final MessageSource messageSource;
 
     /**
      *  [커스텀 에러 처리]
      */
     @ExceptionHandler({ClientException.class, ServerException.class})
-    public ResponseEntity<ErrorResponse> handleBusinessException(RuntimeException e) {
+    public ResponseEntity<ErrorResponse> handleBusinessException(CommonException e) {
 
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-        String message = e.getMessage();
+        String message;
+        // messages.properties 정의 되어있지 않으면 기본 Message 반환
+        try {
+            message = messageSource.getMessage(
+                    e.getMessage(),
+                    e.getArgs(),
+                    LocaleContextHolder.getLocale()
+            );
+        } catch (NoSuchMessageException ne) {
+            message = e.getMessage();
+        }
+
         if (e instanceof ClientException ce) {
             status = ce.getType().getHttpStatus();
-            log.info("ClientException: status={}, message={}", ce.getType().getHttpStatus(), e.getMessage());
+            log.info("ClientException: status={}, key={}, message={}", status, e.getMessage(), message);
         } else if (e instanceof ServerException se) {
-            log.error("ServerException: status={}, message={}", se.getType().getHttpStatus(), e.getMessage());
+            status = se.getType().getHttpStatus();
+            log.error("ServerException: status={}, key={}, message={}", status, e.getMessage(), message);
         }
 
         return ResponseEntity.status(status)
