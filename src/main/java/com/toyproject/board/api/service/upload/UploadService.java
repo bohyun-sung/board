@@ -13,6 +13,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Transactional(readOnly = true)
@@ -23,26 +25,72 @@ public class UploadService {
     private final RedisTemplate<String, String> redisTemplate;
     private final UploadsRepository uploadsRepository;
 
+    /**
+     * 파라미터로 받은 uploadIdxs uploads에 매핑
+     * Redis upload file owner key 확인후 delete
+     * @param uploadIdxs        업로드 idxs
+     * @param uploadMappingIdx  uploadType 과 함께 복합키인 mapping 될 idx
+     * @param userIdx           사용자 idx [owner and admin]
+     * @param roleType          현재 사용자 권한
+     * @param uploadType        uploadMappingIdx 과 함께 복합키인 mapping 될 type
+     */
     @Transactional
     public void confirmMapping(List<Long> uploadIdxs, Long uploadMappingIdx, Long userIdx, RoleType roleType, UploadType uploadType) {
         if (uploadIdxs == null || uploadIdxs.isEmpty()) return;
 
         List<Uploads> uploadsList = uploadsRepository.findAllById(uploadIdxs);
+        List<String> keysToDelete = new ArrayList<>();
+
+        String currentRequester = roleType.name() + ":" + userIdx;
 
         for (Uploads uploads : uploadsList) {
             // Redis 소유권 대조
             String key = RedisConstants.UPLOAD_OWNER_KEY + uploads.getIdx();
             String ownerId = redisTemplate.opsForValue().get(key);
 
-            String currentRequester = roleType.name() + ":" + userIdx;
-
             if (ownerId == null || !ownerId.equals(currentRequester)) {
                 throw new ClientException(ExceptionType.FORBIDDEN_UPLOAD_TIME_OUT);
             }
 
             uploads.confirmMappingIdx(uploadMappingIdx, uploadType);
+            keysToDelete.add(key);
+        }
             // 매핑 성공 후 redis 키 삭제
-            redisTemplate.delete(key);
+        if (!keysToDelete.isEmpty()) {
+            redisTemplate.delete(keysToDelete);
+        }
+    }
+
+    /**
+     * 업로드 파일 수정 old data delete new data mapping
+     * [old] uploadMappingIdx clear -> [new] uploadMappingIdx match
+     * @param newUploadIdxs     새로운 업로드 idxs
+     * @param uploadMappingIdx  uploadType 과 함께 복합키인 mapping 될 idx
+     * @param userIdx           사용자 idx [owner and admin]
+     * @param roleType          현재 사용자 권한
+     * @param uploadType        uploadMappingIdx 과 함께 복합키인 mapping 될 type
+     */
+    @Transactional
+    public void updateMapping(List<Long> newUploadIdxs, Long uploadMappingIdx, Long userIdx, RoleType roleType, UploadType uploadType) {
+        if (newUploadIdxs == null || newUploadIdxs.isEmpty()) return;
+        // 기존 매핑 되어 있는 업로드 파일 목록 조회
+        List<Uploads> currentUploads = uploadsRepository.findAllByUploadMappingIdxAndUploadType(uploadMappingIdx, uploadType);
+        List<Long> currentIdxs = currentUploads.stream().map(Uploads::getIdx).toList();
+
+        // 매핑 해지할 기존 uploads 데이터 추출
+        List<Uploads> toRemoveUploads = currentUploads.stream()
+                .filter(oldUploads -> !newUploadIdxs.contains(oldUploads.getIdx()))
+                .toList();
+
+        // toRemoveUploads 매핑해지
+        toRemoveUploads.forEach(Uploads::clearMapping);
+
+        List<Long> toAddUploadIdxs = newUploadIdxs.stream()
+                .filter(newUploadIdx -> !currentIdxs.contains(newUploadIdx))
+                .toList();
+
+        if (!toAddUploadIdxs.isEmpty()) {
+            confirmMapping(toAddUploadIdxs, uploadMappingIdx, userIdx, roleType, uploadType);
         }
     }
 

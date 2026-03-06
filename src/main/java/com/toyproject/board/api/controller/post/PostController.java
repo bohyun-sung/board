@@ -63,9 +63,13 @@ public class PostController {
     }
 
     @Operation(summary = "게시물 수정", description = "게시물 수정")
-    @PatchMapping
-    public Response<Void> updatePost(@RequestBody @Validated PostUpdateReq req) {
-        postService.updatePost(req);
+    @PatchMapping("/{postIdx}")
+    public Response<Void> updatePost(
+            @PathVariable Long postIdx,
+            @CurrentUserIdx @Parameter(hidden = true) Long userIdx,
+            @CurrentUserRoleType @Parameter(hidden = true) RoleType roleType,
+            @RequestBody @Validated PostUpdateReq req) {
+        postService.updatePost(postIdx, userIdx, roleType, req);
         return Response.success();
     }
 

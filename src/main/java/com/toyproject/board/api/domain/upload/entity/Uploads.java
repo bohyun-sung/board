@@ -65,7 +65,7 @@ public class Uploads extends DefaultTimeStampEntity {
     }
 
     /**
-     * uploadMappingIdx 매핑
+     * uploadMappingIdx 매핑 (더티 체킹)
      */
     public void confirmMappingIdx(Long uploadMappingIdx, UploadType uploadType) {
         if (this.uploadType != uploadType) {
@@ -77,5 +77,9 @@ public class Uploads extends DefaultTimeStampEntity {
             throw new ClientException(ExceptionType.BAD_REQUEST, "이미 사용 중인 파일입니다.");
         }
         this.uploadMappingIdx = uploadMappingIdx;
+    }
+
+    public void clearMapping() {
+        this.uploadMappingIdx = null;
     }
 }

@@ -1,7 +1,9 @@
 package com.toyproject.board.api.service.post;
 
+import com.toyproject.board.api.annotations.CheckOwner;
 import com.toyproject.board.api.domain.member.entity.Member;
 import com.toyproject.board.api.domain.member.repository.MemberRepository;
+import com.toyproject.board.api.enums.CheckType;
 import com.toyproject.board.api.exception.ClientException;
 import com.toyproject.board.api.domain.admin.entity.Admin;
 import com.toyproject.board.api.domain.admin.repository.AdminRepository;
@@ -76,15 +78,17 @@ public class PostService {
 
     }
 
+    @CheckOwner(type = CheckType.POST)
     @Transactional
-    public void updatePost(PostUpdateReq req) {
-        Long currentMemberIdx = SecurityUtil.getRequiredCurrentIdx();
-        Post post = postRepository.findById(req.postIdx()).orElseThrow(() -> new ClientException(ExceptionType.BAD_REQUEST, "잘못된 정보"));
-        // 작성자와 현재 사용자가 같은 확인
-        if (!post.getAdmin().getIdx().equals(currentMemberIdx)) {
-            throw new ClientException(ExceptionType.FORBIDDEN);
-        }
+    public void updatePost(Long postIdx, Long userIdx, RoleType roleType, PostUpdateReq req) {
+
+        Post post = postRepository.findById(postIdx)
+                .orElseThrow(() -> new ClientException(ExceptionType.NOT_FOUND_POST));
+
         post.update(req.title(), req.content(), req.boardType());
+
+        uploadService.updateMapping(req.uploadIdxs(), postIdx, userIdx, roleType, UploadType.POST);
+
     }
 
     @Transactional
@@ -105,4 +109,5 @@ public class PostService {
     private Member findMember(Long idx) {
         return memberRepository.getReferenceById(idx);
     }
+
 }
