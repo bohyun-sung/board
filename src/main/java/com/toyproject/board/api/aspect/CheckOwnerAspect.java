@@ -1,6 +1,7 @@
 package com.toyproject.board.api.aspect;
 
 import com.toyproject.board.api.annotations.CheckOwner;
+import com.toyproject.board.api.domain.comment.repository.CommentRepository;
 import com.toyproject.board.api.domain.post.entity.Post;
 import com.toyproject.board.api.domain.post.repository.PostRepository;
 import com.toyproject.board.api.enums.ExceptionType;
@@ -17,18 +18,21 @@ import org.springframework.stereotype.Component;
 public class CheckOwnerAspect {
 
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
 
     @Before("@annotation(checkOwner) && args(targetIdx, userIdx, roleType, ..)")
-    public void checkOwner(CheckOwner checkOwner, Long postIdx, Long userIdx, RoleType roleType) {
+    public void checkOwner(CheckOwner checkOwner, Long targetIdx, Long userIdx, RoleType roleType) {
         // 관리자면 수정 삭제 가능
         if (roleType == RoleType.ADMIN) {
             return;
         }
         Long ownerIdx = switch (checkOwner.type()) {
-            case POST -> postRepository.findById(postIdx)
+            case POST -> postRepository.findById(targetIdx)
                     .map(post -> post.getMember().getIdx())
                     .orElseThrow(() -> new ClientException(ExceptionType.NOT_FOUND_POST));
-            case COMMENT -> null;
+            case COMMENT -> commentRepository.findById(targetIdx)
+                    .map(comment -> comment.getMember().getIdx())
+                    .orElseThrow(() -> new ClientException(ExceptionType.NOT_FOUND_COMMENT));
         };
 
 

@@ -36,6 +36,8 @@ public enum ExceptionType {
     CONFLICT(HttpStatus.CONFLICT, "conflict"),
     CONFLICT_CREATE_DUPLICATE_ID(HttpStatus.CONFLICT, "duplicate.id"),
     CONFLICT_CREATE_DUPLICATE_EMAIL(HttpStatus.CONFLICT, "duplicate.email"),
+    // 410 GONE
+    GONE_ALREADY_DELETED_COMMENT(HttpStatus.GONE, "gone.already.deleted.comment"),
     // 500 INTERNAL_SERVER_ERROR
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "internal.server.error"),
     INTERNAL_SERVER_ERROR_FILE_UPLOAD(HttpStatus.INTERNAL_SERVER_ERROR, "file.upload"),

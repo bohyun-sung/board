@@ -4,6 +4,7 @@ import com.toyproject.board.api.domain.base.DefaultTimeStampEntity;
 import com.toyproject.board.api.domain.member.entity.Member;
 import com.toyproject.board.api.domain.post.entity.Post;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -55,5 +56,13 @@ public class Comment extends DefaultTimeStampEntity {
 
     public static Comment of(String content, Post post, Member member, Comment parentComment) {
         return new Comment(content, post, member, parentComment);
+    }
+
+    public void modifyContent(String content) {
+        this.content = content;
+    }
+
+    public void modifyIsDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
     }
 }
