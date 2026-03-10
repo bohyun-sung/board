@@ -43,13 +43,13 @@ public class Member extends DefaultTimeStampEntity {
 
     @Column(name = "provider", length = 20)
     @Convert(converter = ProviderType.Converter.class)
-    private ProviderType provider;
+    private ProviderType providerType;
 
     private Member(String email, String nickname, RoleType roleType, ProviderType providerType) {
         this.email = email;
         this.nickname = nickname;
         this.roleType = roleType;
-        this.provider = providerType;
+        this.providerType = providerType;
     }
 
     private Member(String email, String nickname, String phone, String password, RoleType roleType, ProviderType providerType) {
@@ -58,7 +58,7 @@ public class Member extends DefaultTimeStampEntity {
         this.phone = phone;
         this.password = password;
         this.roleType = roleType;
-        this.provider = providerType;
+        this.providerType = providerType;
     }
 
     public static Member of(String email, String nickname, ProviderType providerType) {

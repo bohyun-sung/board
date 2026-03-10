@@ -57,6 +57,16 @@ public class Post extends DefaultTimeStampEntity {
         this.member = member;
     }
 
+    public Post(Long idx, String title, String content, Integer viewCount, BoardType boardType, RoleType roleType, Member member) {
+        this.idx = idx;
+        this.title = title;
+        this.content = content;
+        this.viewCount = viewCount;
+        this.boardType = boardType;
+        this.roleType = roleType;
+        this.member = member;
+    }
+
     public static Post of(String title, String content, BoardType boardType, RoleType roleType, Admin admin, Member member) {
         return new Post(title, content, boardType, roleType, admin, member);
     }

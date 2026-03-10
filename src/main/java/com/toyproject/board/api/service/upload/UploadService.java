@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Transactional(readOnly = true)
@@ -113,5 +112,14 @@ public class UploadService {
         String key = RedisConstants.UPLOAD_OWNER_KEY + uploadIdx;
         String value = roleType.name() + ":" + userIdx;
         redisTemplate.opsForValue().set(key, value, RedisConstants.UPLOAD_OWNER_TTL);
+    }
+
+    /**
+     * 타켓 idx 와 uploadType에 일치하는 DB 데이터 uploadMoppingIdx = null 로 변경
+     * @param targetIdx  타겟 idx
+     * @param uploadType 업로드 타입
+     */
+    public void clearMapping(Long targetIdx, UploadType uploadType) {
+        uploadsRepository.bulkClearMapping(targetIdx, uploadType);
     }
 }

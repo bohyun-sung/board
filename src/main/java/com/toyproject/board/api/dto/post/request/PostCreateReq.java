@@ -23,7 +23,7 @@ public record PostCreateReq(
         @NotBlank(message = "본문은 필수 입력 사항입니다.")
         String content,
 
-        @Schema(description = "게시판 타입 (예: NEWS, NOTICE 등)", example = "NEWS")
+        @Schema(description = "게시판 타입 (예: NEWS, NOTICE 등)", example = "FREE")
         @NotNull(message = "게시판 타입은 필수 선택 사항입니다.")
         BoardType boardType,
 

@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
+import java.util.List;
 
 import static com.toyproject.board.api.constants.RedisConstants.USER_VIEW_CHECK_KEY;
 import static com.toyproject.board.api.constants.RedisConstants.VIEW_COUNT_KEY;
@@ -52,6 +53,17 @@ public class ViewCountService {
         String value = redisTemplate.opsForValue().get(countKey);
 
         return (value != null) ? Long.parseLong(value) : 0L;
+    }
+
+    /**
+     * Redis에 저장된 게시물 목록 실시간 동기화를 위해 추가 조회수 가져오기
+     */
+    public List<String> getListViewCount(List<Long> postIdxs) {
+        List<String> keys = postIdxs.stream()
+                .map(postIdx -> VIEW_COUNT_KEY + postIdx)
+                .toList();
+
+        return redisTemplate.opsForValue().multiGet(keys);
     }
 
     /**
@@ -108,4 +120,5 @@ public class ViewCountService {
             return Integer.toHexString(input.hashCode());
         }
     }
+
 }

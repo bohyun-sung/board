@@ -1,6 +1,5 @@
 package com.toyproject.board.api.domain.admin.repository.querydsl.impl;
 
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -23,12 +22,12 @@ import static ch.qos.logback.core.util.StringUtil.notNullNorEmpty;
 @RequiredArgsConstructor
 public class AdminRepositoryCustomImpl implements AdminRepositoryCustom {
 
-    private final JPAQueryFactory jpaQueryFactory;
+    private final JPAQueryFactory queryFactory;
 
     @Override
     public Page<Admin> findAllByCondition(String name, String phone, String email, Pageable pageable) {
 
-        List<Admin> content = jpaQueryFactory
+        List<Admin> content = queryFactory
                 .select(QAdmin.admin)
                 .from(QAdmin.admin)
                 .where(
@@ -41,7 +40,7 @@ public class AdminRepositoryCustomImpl implements AdminRepositoryCustom {
                 .orderBy(getOrderSpecifier(pageable.getSort()))
                 .fetch();
 
-        JPAQuery<Long> count = jpaQueryFactory
+        JPAQuery<Long> count = queryFactory
                 .select(QAdmin.admin.count())
                 .from(QAdmin.admin)
                 .where(

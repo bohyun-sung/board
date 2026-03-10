@@ -30,7 +30,7 @@ public class S3CleanupScheduler {
     @Value("${spring.cloud.aws.s3.bucket}")
     private String bucketName;
 
-    @Scheduled(cron = "0 0 3 * * *")
+    @Scheduled(cron = "0 10 * * * *")
     @Transactional
     public void cleanupOrphanedUploads() {
         // [TEST] 10분 전 데이터 중 매핑 안 된 데이터 조회
