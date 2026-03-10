@@ -34,7 +34,7 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
-    private final S3Service s3Service;
+
 
     @Operation(summary = "게시물 상세보기", description = "게시물 상세 내용 조회, 성공 시 조회수 1 증가")
     @Parameters({
@@ -80,12 +80,5 @@ public class PostController {
         return Response.success();
     }
 
-    @Operation(summary = "게시물 이미지 업로드", description = "bulk upload")
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Response<List<UploadsRes>> uploadFiles(
-            @RequestPart("files") List<MultipartFile> files,
-            @CurrentUserIdx @Parameter(hidden = true) Long userIdx,
-            @CurrentUserRoleType @Parameter(hidden = true) RoleType roleType) {
-        return Response.success(s3Service.uploadMultipleFiles(files, userIdx, roleType, UploadType.POST));
-    }
+
 }
