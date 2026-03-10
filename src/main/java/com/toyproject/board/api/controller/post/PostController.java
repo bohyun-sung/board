@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "[02] 게시물")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/post")
+@RequestMapping("/api/posts")
 public class PostController {
 
     private final PostService postService;

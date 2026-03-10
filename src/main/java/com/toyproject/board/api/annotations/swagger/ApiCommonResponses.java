@@ -12,9 +12,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * 200, 400, 401, 500 공통 에러 응답값 생성
+ */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-
 @BadRequestErrorResponse
 @UnauthorizedErrorResponse
 @ApiResponses({
@@ -23,6 +25,5 @@ import java.lang.annotation.Target;
                 content = @Content(schema = @Schema(implementation = ErrorResponse.class),
                         examples = @ExampleObject(value = "{ \"result\": false, \"fail\": { \"code\": \"500\", \"message\": \"서버 오류가 발생했습니다\" } }")))
 })
-
 public @interface ApiCommonResponses {
 }

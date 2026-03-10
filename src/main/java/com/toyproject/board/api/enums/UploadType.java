@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum UploadType implements BaseEnum {
 
-    POST(0, "게시판");
+    POST(0, "게시판"),
+    COMMENT(1, "댓글"),
+    ;
 
     private final Integer value;
     private final String text;

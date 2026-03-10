@@ -27,7 +27,7 @@ import java.util.Collection;
 @Tag(name = "[00] 관리자 ", description = "관리자 계정 관련 API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/admin")
+@RequestMapping("/api/admins")
 public class AdminController {
 
     private final AdminService adminService;

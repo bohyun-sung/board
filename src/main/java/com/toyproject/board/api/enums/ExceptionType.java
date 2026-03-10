@@ -11,6 +11,7 @@ public enum ExceptionType {
     BAD_REQUEST_PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "password.mismatch"),
     BAD_REQUEST_EMPTY_FILE(HttpStatus.BAD_REQUEST, "empty.file"),
     BAD_REQUEST_FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "file.size.exceeded"),
+    BAD_REQUEST_INVALID_PARENT_COMMENT(HttpStatus.BAD_REQUEST, "invalid.parent.comment"),
 
     // 401 UNAUTHORIZED
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "unauthorized"),
@@ -30,6 +31,7 @@ public enum ExceptionType {
     NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND, "not.found.member"),
     NOT_FOUND_EMAIL(HttpStatus.NOT_FOUND, "not.found.email"),
     NOT_FOUND_POST(HttpStatus.NOT_FOUND, "not.found.post"),
+    NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, "not.found.comment"),
     // 409 CONFLICT
     CONFLICT(HttpStatus.CONFLICT, "conflict"),
     CONFLICT_CREATE_DUPLICATE_ID(HttpStatus.CONFLICT, "duplicate.id"),
