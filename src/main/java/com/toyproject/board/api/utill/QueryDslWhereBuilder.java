@@ -50,13 +50,4 @@ public class QueryDslWhereBuilder {
         return this;
     }
 
-    // OR 조건: (cond1 OR cond2 OR cond3) 형태로 괄호를 묶어서 AND 처리
-    public QueryDslWhereBuilder andOrCondition(Predicate... predicates) {
-        BooleanBuilder orBuilder = new BooleanBuilder();
-        for (Predicate p : predicates) {
-            if (p != null) orBuilder.or(p);
-        }
-        builder.and(orBuilder);
-        return this;
-    }
 }

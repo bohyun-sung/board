@@ -2,7 +2,6 @@ package com.toyproject.board.api.scheduler;
 
 import com.toyproject.board.api.domain.upload.entity.Uploads;
 import com.toyproject.board.api.domain.upload.repository.UploadsRepository;
-import io.awspring.cloud.s3.S3Template;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

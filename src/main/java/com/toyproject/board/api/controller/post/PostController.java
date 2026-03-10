@@ -1,10 +1,8 @@
 package com.toyproject.board.api.controller.post;
 
-import com.toyproject.board.api.annotations.swagger.ApiCommonResponses;
 import com.toyproject.board.api.annotations.CurrentUserIdx;
 import com.toyproject.board.api.annotations.CurrentUserRoleType;
-import com.toyproject.board.api.annotations.swagger.BadRequestErrorResponse;
-import com.toyproject.board.api.annotations.swagger.UnauthorizedErrorResponse;
+import com.toyproject.board.api.annotations.swagger.ApiCommonResponses;
 import com.toyproject.board.api.config.Response;
 import com.toyproject.board.api.dto.post.request.PostCreateReq;
 import com.toyproject.board.api.dto.post.request.PostListReq;

@@ -2,10 +2,7 @@ package com.toyproject.board.api.domain.post.repository;
 
 import com.toyproject.board.api.domain.post.entity.Post;
 import com.toyproject.board.api.domain.post.repository.querydsl.PostRepositoryCustom;
-import com.toyproject.board.api.enums.BoardType;
 import io.lettuce.core.dynamic.annotation.Param;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
