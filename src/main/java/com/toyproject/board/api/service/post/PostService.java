@@ -76,7 +76,7 @@ public class PostService {
         try {
             viewCountService.increaseViewCountAsync(postIdx, request);
         } catch (Exception e) {
-            log.error("조회수 증사 실패 postIdx: {}", postIdx, e);
+            log.error("Failed to increase views postIdx: {}", postIdx, e);
         }
         // 업로드 파일 매핑
         List<UploadsShowDto> uploadsShowDtoList = uploadService.findAllByUploadMapping(postIdx, UploadType.POST);

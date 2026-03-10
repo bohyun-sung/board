@@ -1,5 +1,7 @@
 package com.toyproject.board.api.domain.admin.repository.querydsl.impl;
 
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -9,15 +11,20 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.toyproject.board.api.domain.admin.entity.Admin;
 import com.toyproject.board.api.domain.admin.entity.QAdmin;
 import com.toyproject.board.api.domain.admin.repository.querydsl.AdminRepositoryCustom;
+import com.toyproject.board.api.utill.QueryDslUtil;
+import com.toyproject.board.api.utill.QueryDslWhereBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static ch.qos.logback.core.util.StringUtil.notNullNorEmpty;
+import static com.toyproject.board.api.domain.admin.entity.QAdmin.admin;
 
 @RequiredArgsConstructor
 public class AdminRepositoryCustomImpl implements AdminRepositoryCustom {
@@ -27,54 +34,32 @@ public class AdminRepositoryCustomImpl implements AdminRepositoryCustom {
     @Override
     public Page<Admin> findAllByCondition(String name, String phone, String email, Pageable pageable) {
 
+        BooleanBuilder where = QueryDslWhereBuilder.init()
+                .andContains(admin.name, name)
+                .andContains(admin.email, email)
+                .andContains(admin.phone, phone)
+                .build();
+
+        Map<String, Expression<?>> sortMap = new HashMap<>();
+        sortMap.put("rgdt", admin.rgdt);
+        sortMap.put("adminIdx", admin.idx);
+
+        OrderSpecifier<?>[] order = QueryDslUtil.getSafeOrderSpecifier(pageable.getSort(), sortMap, admin.rgdt.desc());
+
         List<Admin> content = queryFactory
-                .select(QAdmin.admin)
-                .from(QAdmin.admin)
-                .where(
-                        containsName(name),
-                        containsEmail(email),
-                        containsPhone(phone)
-                )
+                .select(admin)
+                .from(admin)
+                .where(where)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(getOrderSpecifier(pageable.getSort()))
+                .orderBy(order)
                 .fetch();
 
         JPAQuery<Long> count = queryFactory
-                .select(QAdmin.admin.count())
-                .from(QAdmin.admin)
-                .where(
-                        containsName(name),
-                        containsEmail(email),
-                        containsPhone(phone)
-                );
+                .select(admin.count())
+                .from(admin)
+                .where(where);
 
         return PageableExecutionUtils.getPage(content, pageable, count::fetchOne);
     }
-
-    private BooleanExpression containsName(String name) {
-        return notNullNorEmpty(name) ? QAdmin.admin.name.containsIgnoreCase(name) : null;
-    }
-
-    private BooleanExpression containsEmail(String email) {
-        return notNullNorEmpty(email) ? QAdmin.admin.email.containsIgnoreCase(email) : null;
-    }
-
-    private BooleanExpression containsPhone(String phone) {
-        return notNullNorEmpty(phone) ? QAdmin.admin.phone.containsIgnoreCase(phone) : null;
-    }
-
-    // 정렬 적용 예시
-    private OrderSpecifier<?>[] getOrderSpecifier(Sort sort) {
-        return sort.stream()
-                .map(order -> {
-                    PathBuilder<Admin> pathBuilder = new PathBuilder<>(QAdmin.admin.getType(), QAdmin.admin.getMetadata());
-                    return new OrderSpecifier(
-                            order.isAscending() ? Order.ASC : Order.DESC,
-                            pathBuilder.get(order.getProperty())
-                    );
-                })
-                .toArray(OrderSpecifier[]::new);
-    }
-
 }
