@@ -1,7 +1,10 @@
 package com.toyproject.board.api.controller.post;
 
+import com.toyproject.board.api.annotations.swagger.ApiCommonResponses;
 import com.toyproject.board.api.annotations.CurrentUserIdx;
 import com.toyproject.board.api.annotations.CurrentUserRoleType;
+import com.toyproject.board.api.annotations.swagger.BadRequestErrorResponse;
+import com.toyproject.board.api.annotations.swagger.UnauthorizedErrorResponse;
 import com.toyproject.board.api.config.Response;
 import com.toyproject.board.api.dto.post.request.PostCreateReq;
 import com.toyproject.board.api.dto.post.request.PostListReq;
@@ -61,11 +64,8 @@ public class PostController {
         return Response.success(PostShowRes.from(postService.showPost(postIdx, request)));
     }
 
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "게시물 작성 성공"),
-            @ApiResponse(responseCode = "400", description = "업로드 데이터와 매핑 실패"),
-            @ApiResponse(responseCode = "403", description = "업로드된 파일 권한 없음"),
-    })
+    @ApiResponse(responseCode = "403", description = "업로드된 파일 권한 없음")
+    @ApiCommonResponses
     @Operation(summary = "게시물 작성", description = "게시물 작성")
     @PostMapping
     public Response<Void> createPost(
@@ -77,10 +77,10 @@ public class PostController {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "게시물 수정 성공"),
             @ApiResponse(responseCode = "403", description = "업로드된 파일 권한 없음"),
             @ApiResponse(responseCode = "404", description = "게시물 정보를 찾지 못했음"),
     })
+    @ApiCommonResponses
     @Operation(summary = "게시물 수정", description = "게시물 수정")
     @PatchMapping("/{postIdx}")
     public Response<Void> updatePost(
@@ -92,6 +92,7 @@ public class PostController {
         return Response.success();
     }
 
+    @ApiCommonResponses
     @Operation(summary = "게시물 삭제", description = "게시물 삭제")
     @DeleteMapping("/{postIdx}")
     public Response<Void> deletePost(

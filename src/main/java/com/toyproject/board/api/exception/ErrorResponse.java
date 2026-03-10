@@ -1,6 +1,7 @@
 package com.toyproject.board.api.exception;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,9 +22,9 @@ public class ErrorResponse {
     @Getter
     @NoArgsConstructor
     public static class ErrorSubResponse {
-
+        @Schema(description = "에러 코드")
         private Integer code;
-
+        @Schema(description = "에러 메세지")
         private String message;
 
         public ErrorSubResponse(Integer code, String message) {
