@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -59,9 +60,10 @@ public class Post extends DefaultTimeStampEntity {
     public static Post of(String title, String content, BoardType boardType, RoleType roleType, Admin admin, Member member) {
         return new Post(title, content, boardType, roleType, admin, member);
     }
+
     public void update(String title, String content, BoardType boardType) {
-        this.title = title;
-        this.content = content;
-        this.boardType = boardType;
+        if (StringUtils.hasText(title))  this.title = title;
+        if (StringUtils.hasText(content))  this.content = content;
+        if (boardType != null) this.boardType = boardType;
     }
 }

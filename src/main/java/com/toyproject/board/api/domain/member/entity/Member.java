@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -76,7 +77,7 @@ public class Member extends DefaultTimeStampEntity {
     }
 
     public Member modifyName(String nickname) {
-        this.nickname = nickname;
+        if (StringUtils.hasText(nickname)) this.nickname = nickname;
         return this;
     }
 

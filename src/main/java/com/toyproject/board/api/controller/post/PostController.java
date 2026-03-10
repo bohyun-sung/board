@@ -74,7 +74,7 @@ public class PostController {
     }
 
     @Operation(summary = "게시물 삭제", description = "게시물 삭제")
-    @DeleteMapping
+    @DeleteMapping("/{postIdx}")
     public Response<Void> deletePost(@PathVariable Long postIdx) {
         postService.deletePost(postIdx);
         return Response.success();

@@ -62,9 +62,9 @@ public class S3Service {
     /**
      * 다중 업로드
      *
-     * @param files    업로드 파일
-     * @param userIdx
-     * @param roleType
+     * @param files     업로드 파일
+     * @param userIdx   사용자 idx
+     * @param roleType  RoleType
      * @return 업로드 URL
      */
     @Transactional
