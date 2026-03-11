@@ -21,4 +21,10 @@ public interface UploadsRepository extends JpaRepository<Uploads, Long> {
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("UPDATE Uploads u SET u.uploadMappingIdx = null WHERE u.uploadMappingIdx = :targetIdx AND u.uploadType = :uploadType")
     void bulkClearMapping(@Param("targetIdx") Long targetIdx, @Param("uploadType") UploadType uploadType);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("UPDATE Uploads u SET u.uploadMappingIdx = null " +
+            "WHERE u.uploadType = :comment AND u.uploadMappingIdx IN " +
+            "(SELECT c.idx FROM Comment c WHERE c.post.idx = :postIdx)")
+    void clearAllCommentFilesByPostIdx(Long targetIdx, UploadType comment);
 }

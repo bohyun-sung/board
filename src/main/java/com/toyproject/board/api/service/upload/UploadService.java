@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -120,6 +121,13 @@ public class UploadService {
      * @param uploadType 업로드 타입
      */
     public void clearMapping(Long targetIdx, UploadType uploadType) {
-        uploadsRepository.bulkClearMapping(targetIdx, uploadType);
+        if (uploadType == UploadType.POST) {
+            uploadsRepository.bulkClearMapping(targetIdx, uploadType);
+            // 댓글 업로드 매핑 clear
+            uploadsRepository.clearAllCommentFilesByPostIdx(targetIdx, UploadType.COMMENT);
+        } else {
+            uploadsRepository.bulkClearMapping(targetIdx, uploadType);
+        }
+
     }
 }
