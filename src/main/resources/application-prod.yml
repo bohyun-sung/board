@@ -37,6 +37,9 @@ springdoc:
     path: /swagger-ui.html
     enabled: true
     display-request-duration: true
+  server:
+    url: https://bohyun-board.duckdns.org
+    description: Production Server
 
 logbook:
   filter:
