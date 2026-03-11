@@ -66,6 +66,8 @@ app:
         - "/swagger-ui.html"
         - "/swagger-resources/**"
         - "/webjars/**"
+        - "/favicon.ico"
+        - "/error"
         - "/login/oauth2/**"
       post-whitelist:
         - "/api/auth/login/admin"
