@@ -32,11 +32,6 @@ spring:
       max-file-size: 10MB
       max-request-size: 50MB
 
-  data:
-    redis:
-      host: redis
-      port: 6379
-
 springdoc:
   swagger-ui:
     query-config-enabled: false
@@ -47,15 +42,20 @@ logbook:
 
 logging:
   level:
-    root: info
-    org.zalando.logbook: trace
-    org.hibernate.SQL: debug
-    org.hibernate.type: trace
-    org.hibernate.orm.jdbc.bind: trace
-    org.springframework.security: debug
-    com.zaxxer.hikari: DEBUG
-    com.zaxxer.hikari.HikariConfig: DEBUG
-    com.toyproject.board: DEBUG
+    root: info # 전체 기본값은 info로 유지 (시스템 안정성)
+    com.toyproject.board: info # 내 프로젝트 로직은 info 이상만 (에러나 주요 흐름 확인)
+
+    # DB 관련: 쿼리는 보고 싶되, 데이터 값(bind)은 제외하여 보안/성능 유지
+    org.hibernate.SQL: debug # 실행되는 SQL 쿼리문은 확인 가능
+    org.hibernate.type.descriptor.sql.BasicBinder: warn # 쿼리 파라미터 값(bind)은 노출 안 함 (보안)
+    org.hibernate.orm.jdbc.bind: warn # Hibernate 6 이상용 파라미터 로그 비활성화
+
+    # 커넥션 풀: 초기화 시점에만 디버그 정보를 확인하고 평소엔 잠잠하게
+    com.zaxxer.hikari: info
+
+    # 보안 및 기타 라이브러리: 평소엔 info, 장애 발생 시에만 debug로 변경 권장
+    org.springframework.security: info
+    org.zalando.logbook: info
 
 app:
   security:
