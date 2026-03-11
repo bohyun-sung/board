@@ -2,8 +2,6 @@ server:
   port: 8090
 
 spring:
-  profiles:
-    include: aws
 
   jpa:
     hibernate:
@@ -33,8 +31,12 @@ spring:
       max-request-size: 50MB
 
 springdoc:
+  api-docs:
+    path: /v3/api-docs
   swagger-ui:
-    query-config-enabled: false
+    path: /swagger-ui.html
+    enabled: true
+    display-request-duration: true
 
 logbook:
   filter:
