@@ -7,6 +7,7 @@ import com.toyproject.board.api.domain.member.entity.Member;
 import com.toyproject.board.api.domain.member.repository.MemberRepository;
 import com.toyproject.board.api.domain.post.entity.Post;
 import com.toyproject.board.api.domain.post.repository.PostRepository;
+import com.toyproject.board.api.dto.comment.CommentDto;
 import com.toyproject.board.api.dto.comment.request.CommentCreateReq;
 import com.toyproject.board.api.dto.comment.request.CommentUpdateReq;
 import com.toyproject.board.api.enums.CheckType;
@@ -16,6 +17,8 @@ import com.toyproject.board.api.enums.UploadType;
 import com.toyproject.board.api.exception.ClientException;
 import com.toyproject.board.api.service.upload.UploadService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +34,10 @@ public class CommentService {
     private final MemberRepository memberRepository;
 
 
+    public Page<CommentDto> getComments(Long postIdx, Pageable pageable) {
+        return commentRepository.findByCondition(postIdx, pageable);
+    }
+
     @Transactional
     public void createComment(Long postIdx, Long userIdx, RoleType roleType, CommentCreateReq req) {
         Post post = postRepository.findById(postIdx)
@@ -41,6 +48,9 @@ public class CommentService {
 
         // 부모 댓글 조회
         Comment parentComment = null;
+        Long rootCommentIdx = null;
+        String parentPath = "";
+
         if (req.getParentIdx() != null) {
             parentComment = commentRepository.findById(req.getParentIdx())
                     .orElseThrow(() -> new ClientException(ExceptionType.NOT_FOUND_COMMENT, new Object[]{req.getParentIdx()}));
@@ -48,11 +58,20 @@ public class CommentService {
             if (!parentComment.getPost().getIdx().equals(postIdx)) {
                 throw new ClientException(ExceptionType.BAD_REQUEST_INVALID_PARENT_COMMENT);
             }
+            // Root idx 설정
+            rootCommentIdx = (parentComment.getRootCommentIdx() == null)
+                    ? parentComment.getIdx()
+                    : parentComment.getRootCommentIdx();
+            parentPath = parentComment.getPath();
+
         }
 
-        Comment entity = req.toEntity(post, member, parentComment);
+        Comment entity = req.toEntity(post, member, parentComment, rootCommentIdx, parentPath);
 
         Comment saveComment = commentRepository.save(entity);
+        // path 업데이트 ("00001/00005")
+        String currentPath = parentPath + String.format("%05d", saveComment.getIdx());
+        saveComment.modifyPath(currentPath);
         // 댓글 업로드 매핑
         uploadService.confirmMapping(req.getUploadIdxs(), saveComment.getIdx(), userIdx, roleType, UploadType.COMMENT);
 
@@ -73,7 +92,7 @@ public class CommentService {
         uploadService.updateMapping(req.getUploadIdxs(), commentIdx, userIdx, roleType, UploadType.COMMENT);
     }
 
-    @CheckOwner(type = CheckType.COMMENT) // 작성자 또는 관리자 권한 체크 AOP
+    @CheckOwner(type = CheckType.COMMENT)
     @Transactional
     public void deleteComment(Long commentIdx, Long userIdx, RoleType roleType) {
         Comment comment = commentRepository.findById(commentIdx)
@@ -87,4 +106,5 @@ public class CommentService {
         comment.modifyContent("삭제된 댓글입니다");
         uploadService.clearMapping(commentIdx, UploadType.COMMENT);
     }
+
 }

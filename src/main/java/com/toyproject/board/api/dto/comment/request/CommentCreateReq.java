@@ -26,7 +26,7 @@ public class CommentCreateReq {
     @Schema(description = "첨부 파일 PK 리스트", example = "[1, 2]")
     private List<Long> uploadIdxs = new ArrayList<>();
 
-    public Comment toEntity(Post post, Member member, Comment parentComment) {
-        return Comment.of(this.content, post, member, parentComment);
+    public Comment toEntity(Post post, Member member, Comment parentComment, Long rootCommentIdx, String parentPath) {
+        return Comment.of(this.content, post, member, parentComment, rootCommentIdx, parentPath);
     }
 }

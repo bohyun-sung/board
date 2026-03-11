@@ -74,4 +74,4 @@ app:
         - "/api/auth/create/member"
 
       get-whitelist:
-        - "/api/post/**"
+        - "/api/posts/**"

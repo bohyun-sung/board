@@ -18,7 +18,7 @@ public interface UploadsRepository extends JpaRepository<Uploads, Long> {
 
     List<Uploads> findAllByUploadMappingIdxIsNullAndRgdtBefore(LocalDateTime threshold);
 
-    @Modifying(clearAutomatically = true)
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("UPDATE Uploads u SET u.uploadMappingIdx = null WHERE u.uploadMappingIdx = :targetIdx AND u.uploadType = :uploadType")
     void bulkClearMapping(@Param("targetIdx") Long targetIdx, @Param("uploadType") UploadType uploadType);
 }
