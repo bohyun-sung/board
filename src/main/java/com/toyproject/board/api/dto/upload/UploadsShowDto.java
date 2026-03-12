@@ -18,8 +18,10 @@ public class UploadsShowDto {
     private String thumbnailUrl;
     @Schema(description = "업로드 파일 순서")
     private Integer sortOrder;
+    @Schema(description = "업로드 매핑 idx")
+    private Long uploadMappingIdx;
 
     public static UploadsShowDto from(Uploads entity) {
-        return new UploadsShowDto(entity.getIdx(), entity.getUploadUrl(), entity.getThumbnailUrl(), entity.getSortOrder());
+        return new UploadsShowDto(entity.getIdx(), entity.getUploadUrl(), entity.getThumbnailUrl(), entity.getSortOrder(), entity.getUploadMappingIdx());
     }
 }

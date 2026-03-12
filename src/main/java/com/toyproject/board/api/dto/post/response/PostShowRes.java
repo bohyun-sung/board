@@ -23,13 +23,24 @@ public record PostShowRes(
         BoardType boardType,
 
         @Schema(description = "조회수", example = "1")
-        Integer viewCont,
+        Integer viewCount,
 
         @Schema(description = "게시물 생성시간", example = "2026-02-06T01:37:33")
         LocalDateTime rgdt,
 
         @Schema(description = "게시물 업로드 파일")
-        List<UploadsShowDto> uploads
+        List<UploadsShowDto> uploads,
+
+        @Schema(description = "작성자")
+        String nickname,
+
+        @Schema(description = "관리자 idx")
+        Long adminIdx,
+
+        @Schema(description = "멤버 idx")
+        Long memberIdx
+
+
         ) {
     public static PostShowRes from(PostDTO dto) {
         return new PostShowRes(
@@ -39,7 +50,10 @@ public record PostShowRes(
                 dto.getBoardType(),
                 dto.getViewCount(),
                 dto.getRgdt(),
-                dto.getUploads()
+                dto.getUploads(),
+                dto.getNickname(),
+                dto.getAdminIdx(),
+                dto.getMemberIdx()
         );
     }
 }

@@ -13,7 +13,7 @@ public record AdminLoginRes(
         @Schema(description = "관리자", example = "admin_5")
         String userId,
         @Schema(description = "JWT 토큰 객체")
-        TokenDto tokenDto
+        TokenDto token
 ) {
     public static AdminLoginRes from(AdminLoginDto dto) {
         return new AdminLoginRes(

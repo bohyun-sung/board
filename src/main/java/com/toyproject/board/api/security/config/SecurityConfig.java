@@ -9,6 +9,7 @@ import com.toyproject.board.api.security.oauth.CustomOAuth2UserService;
 import com.toyproject.board.api.security.oauth.OAuth2SuccessHandler;
 import com.toyproject.board.api.security.properties.AppSecurityProperties;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -77,8 +78,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*")); // 특정 도메인만 허용 (보안상 권장)
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:8090",
+                "http://localhost:5173",
+                "https://bohyun-board.duckdns.org"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of(AuthConstants.AUTHORIZATION));
         configuration.setAllowCredentials(true);
