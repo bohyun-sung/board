@@ -1,0 +1,77 @@
+server:
+  port: 8090
+
+spring:
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      ddl-auto: none
+      dialect: org.hibernate.dialect.MariaDBDialect
+
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true         # SQL에 색상 부여 (터미널에서 가독성 향상)
+        use_sql_comments: true      # 쿼리에 주석 추가
+
+    show-sql: false
+
+  # Message settings
+  messages:
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 50MB
+
+  data:
+    redis:
+      host: localhost
+      port: 6380
+
+springdoc:
+  swagger-ui:
+    query-config-enabled: false
+
+logbook:
+  filter:
+    enabled: false
+
+logging:
+  level:
+    root: info
+    org.zalando.logbook: trace
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
+    org.hibernate.orm.jdbc.bind: trace
+    org.springframework.security: debug
+    com.zaxxer.hikari: DEBUG
+    com.zaxxer.hikari.HikariConfig: DEBUG
+    com.toyproject.board: DEBUG
+
+app:
+  security:
+    url:
+      whitelist:
+        - "/v3/api-docs/**"
+        - "/swagger-ui/**"
+        - "/swagger-ui.html"
+        - "/swagger-resources/**"
+        - "/webjars/**"
+        - "/login/oauth2/**"
+      post-whitelist:
+        - "/api/auth/login/admin"
+        - "/api/auth/login/member"
+        - "/api/auth/create/admin"
+        - "/api/auth/create/member"
+
+      get-whitelist:
+        - "/api/posts/**"
+
+  callback:
+    url: "http://localhost:5173/oauth-callback"
