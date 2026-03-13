@@ -10,6 +10,7 @@ import com.toyproject.board.api.jwt.repository.RefreshTokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
@@ -22,7 +23,8 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-
+    @Value("${app.callback.url}")
+    private String oathCallbackUrl;
     private final JwtTokenProperty jwtTokenProperty;
     private final RefreshTokenRepository refreshTokenRepository;
     private final AppJwtProperties appJwtProperties;
@@ -38,7 +40,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         refreshTokenRepository.save(RefreshToken.of(memberIdx, RoleType.USER, refreshToken));
 
-        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:8080/api/auth/success")
+        String targetUrl = UriComponentsBuilder.fromUriString(oathCallbackUrl)
                 .queryParam("token", accessToken)
                 .build().toUriString();
 

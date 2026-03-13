@@ -75,3 +75,6 @@ app:
 
       get-whitelist:
         - "/api/posts/**"
+
+  callback:
+    url: "http://localhost:5173/oauth-callback"

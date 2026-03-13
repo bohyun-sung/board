@@ -16,6 +16,7 @@ public class CommentDto {
 
     private Long commentIdx;
     private String content;
+    private Long memberIdx;
     private String nickname;
     private LocalDateTime rgdt;
     private boolean isDeleted;
@@ -29,6 +30,7 @@ public class CommentDto {
         return CommentDto.builder()
                 .commentIdx(entity.getIdx())
                 .content(entity.isDeleted() ? "삭제된 댓글입니다." : entity.getContent())
+                .memberIdx(entity.getMember().getIdx())
                 .nickname(entity.getMember().getNickname())
                 .rgdt(entity.getRgdt())
                 .isDeleted(entity.isDeleted())

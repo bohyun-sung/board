@@ -83,3 +83,6 @@ app:
 
       get-whitelist:
         - "/api/posts/**"
+
+  callback:
+    url: "https://bohyun-board.duckdns.org/oauth-callback"

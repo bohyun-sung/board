@@ -19,6 +19,8 @@ public class CommentListRes {
     private Long commentIdx;
     @Schema(description = "댓글 내용")
     private String content;
+    @Schema(description = "멤버 idx")
+    private Long memberIdx;
     @Schema(description = "닉네임")
     private String nickname;
     @Schema(description = "댓글 생성시간")
@@ -36,6 +38,7 @@ public class CommentListRes {
         return CommentListRes.builder()
                 .commentIdx(dto.getCommentIdx())
                 .content(dto.getContent())
+                .memberIdx(dto.getMemberIdx())
                 .nickname(dto.getNickname())
                 .rgdt(dto.getRgdt())
                 .isDeleted(dto.isDeleted())
