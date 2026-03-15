@@ -8,12 +8,14 @@ services:
     volumes:
       # 호스트의 설정 폴더를 컨테이너 내부의 /app/config 로 연결
       - /var/jenkins_home/config:/app/config:ro
+      - /etc/localtime:/etc/localtime:ro
     environment:
       - SPRING_PROFILES_ACTIVE=prod,aws
+      - TZ=Asia/Seoul
     # 프리티어 메모리 부족 방지를 위해 실행 옵션 추가
     command: >
       java -Xms128M -Xmx256M 
       -Dspring.config.additional-location=file:/app/config/application-aws.yml 
-      -Dspring.datasource.url=jdbc:mariadb://toy-board-db.c9m8qu8ean5v.ap-northeast-2.rds.amazonaws.com:3306/board?useSSL=true&serverSslCert=/app/config/global-bundle.pem
+      -Dspring.datasource.url=jdbc:mariadb://toy-board-db.c9m8qu8ean5v.ap-northeast-2.rds.amazonaws.com:3306/board?useSSL=true&serverSslCert=/app/config/global-bundle.pem&trustServerCertificate=true
       -jar /app.jar
     restart: always
