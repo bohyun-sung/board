@@ -9,6 +9,7 @@ services:
       # 호스트의 설정 폴더를 컨테이너 내부의 /app/config 로 연결
       - /var/jenkins_home/config:/app/config:ro
       - /etc/localtime:/etc/localtime:ro
+      - /home/ubuntu/app-logs:/app/logs # EC2의 /home/ubuntu/app-logs 폴더에서 바로 확인
     environment:
       - SPRING_PROFILES_ACTIVE=prod,aws
       - TZ=Asia/Seoul
