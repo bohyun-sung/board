@@ -14,6 +14,6 @@ services:
     command: >
       java -Xms128M -Xmx256M 
       -Dspring.config.additional-location=file:/app/config/application-aws.yml 
-      -DserverSslCert=/app/config/global-bundle.pem
+      -Dspring.datasource.url=jdbc:mariadb://toy-board-db.c9m8qu8ean5v.ap-northeast-2.rds.amazonaws.com:3306/board?useSSL=true&serverSslCert=/app/config/global-bundle.pem
       -jar /app.jar
     restart: always
