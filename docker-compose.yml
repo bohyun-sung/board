@@ -14,5 +14,6 @@ services:
     command: >
       java -Xms128M -Xmx256M 
       -Dspring.config.additional-location=file:/app/config/application-aws.yml 
+      -DserverSslCert=/app/config/global-bundle.pem
       -jar /app.jar
     restart: always
