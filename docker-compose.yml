@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  app:
+    image: toyproject/board:v1.0
+    container_name: spring-api
+    ports:
+      - "8090:8090"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    restart: always
