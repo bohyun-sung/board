@@ -5,6 +5,14 @@ services:
     container_name: spring-api
     ports:
       - "8090:8090"
+    volumes:
+      # 호스트의 설정 폴더를 컨테이너 내부의 /app/config 로 연결
+      - /var/jenkins_home/config:/app/config:ro
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=prod,aws
+    # 프리티어 메모리 부족 방지를 위해 실행 옵션 추가
+    command: >
+      java -Xms128M -Xmx256M 
+      -Dspring.config.additional-location=file:/app/config/application-aws.yml 
+      -jar /app.jar
     restart: always
