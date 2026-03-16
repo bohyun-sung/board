@@ -11,7 +11,7 @@ DROP TABLE IF EXISTS `admin`;
 -- 1. 관리자 테이블
 CREATE TABLE `admin`
 (
-    `admin_idx` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'idx',
+    `admin_idx` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'idx',
     `name`      varchar(20)  NOT NULL COMMENT '이름',
     `user_id`   varchar(100) NOT NULL COMMENT 'id',
     `password`  varchar(100) NOT NULL COMMENT '비밀번호',
