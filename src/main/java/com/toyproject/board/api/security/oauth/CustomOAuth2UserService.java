@@ -41,6 +41,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .map(entity -> entity.modifyName(attributes.getName()))
                 .orElseGet(() -> memberRepository.save(attributes.toEntity(registrationId)));
 
+        attributes.modifyMemberIdx(member.getIdx());
         return new UserPrincipal(member, attributes.getAttributes());
     }
 }

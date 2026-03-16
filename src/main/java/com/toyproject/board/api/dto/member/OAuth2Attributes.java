@@ -11,13 +11,15 @@ import java.util.Map;
 public class OAuth2Attributes {
     private final Map<String, Object> attributes;
     private final String nameAttributeKey;
+    private Long memberIdx;
     private final String name;
     private final String email;
 
     @Builder
-    public OAuth2Attributes(Map<String, Object> attributes, String nameAttributeKey, String name, String email) {
+    public OAuth2Attributes(Map<String, Object> attributes, String nameAttributeKey, Long memberIdx, String name, String email) {
         this.attributes = attributes;
         this.nameAttributeKey = nameAttributeKey;
+        this.memberIdx = memberIdx;
         this.name = name;
         this.email = email;
     }
@@ -38,5 +40,9 @@ public class OAuth2Attributes {
     public Member toEntity(String registrationId) {
         ProviderType providerType = ProviderType.valueOf(registrationId.toUpperCase());
         return Member.of(email, name, providerType);
+    }
+
+    public void modifyMemberIdx(Long memberIdx) {
+        this.memberIdx = memberIdx;
     }
 }
