@@ -50,6 +50,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String targetUrl = UriComponentsBuilder.fromUriString(oathCallbackUrl)
                 .queryParam("token", accessToken)
+                .queryParam("memberIdx", memberIdx)
                 .build().toUriString();
 
         // RefreshToken 쿠키에 추가
