@@ -61,7 +61,7 @@ logging:
 
     # 보안 및 기타 라이브러리: 평소엔 info, 장애 발생 시에만 debug로 변경 권장
     org.springframework.security: info
-    org.zalando.logbook: info
+    org.zalando.logbook: debug
 
 app:
   security:
