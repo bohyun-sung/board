@@ -58,7 +58,6 @@
 ---
 
 ## 📖 API Documentation
-- **Swagger UI:** `https://bohyun-board.duckdns.org/swagger-ui/index.html` (prod 실행 시)
 - **Swagger UI:** `http://localhost:8090/swagger-ui/index.html` (local 실행 시)
 - 모든 API는 표준 HTTP Method와 상태 코드를 준수하며, 상세한 요청/응답 타입이 정의되어 있습니다.
 
