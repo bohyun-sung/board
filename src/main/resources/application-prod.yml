@@ -49,7 +49,7 @@ logbook:
 logging:
   level:
     root: info # 전체 기본값은 info로 유지 (시스템 안정성)
-    com.toyproject.board: info # 내 프로젝트 로직은 info 이상만 (에러나 주요 흐름 확인)
+    com.toyproject.board: debug # 내 프로젝트 로직은 info 이상만 (에러나 주요 흐름 확인)
 
     # DB 관련: 쿼리는 보고 싶되, 데이터 값(bind)은 제외하여 보안/성능 유지
     org.hibernate.SQL: debug # 실행되는 SQL 쿼리문은 확인 가능
