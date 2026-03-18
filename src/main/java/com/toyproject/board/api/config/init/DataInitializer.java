@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@Profile({"dev"})
+@Profile({"prod"})
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
     private final MemberRepository memberRepository;
