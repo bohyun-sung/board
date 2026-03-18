@@ -41,7 +41,7 @@ public class PostController {
     @GetMapping
     public Response<Page<PostListRes>> getPostList(
             @ParameterObject PostListReq req,
-            @ParameterObject @PageableDefault(sort = "rgdt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @ParameterObject @PageableDefault(sort = "post_idx", direction = Sort.Direction.DESC) Pageable pageable) {
 
         return Response.success(postService.getPostList(req, pageable).map(PostListRes::from));
     }
