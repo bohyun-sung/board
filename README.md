@@ -24,7 +24,7 @@
 
 ---
 
-## 🌟 Key Features & Technical Achievements
+## Key Features & Technical Achievements
 
 ### 1. 보안 및 인증 아키텍처 (JWT + OAuth2 + Redis)
 - **JWT & Social Login:** OAuth2(Google, Kakao 등)와 자체 JWT 인증을 통합하여 유연한 로그인 환경 구축.
