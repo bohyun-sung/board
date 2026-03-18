@@ -73,8 +73,7 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
         Long totalCount = queryFactory.select(comment.count())
                 .from(comment)
                 .where(
-                        comment.post.idx.eq(postIdx),
-                        comment.parentComment.isNull())
+                        comment.post.idx.eq(postIdx))
                 .fetchOne();
 
         return new PageImpl<>(treeResult, pageable, totalCount != null ? totalCount : 0L);
