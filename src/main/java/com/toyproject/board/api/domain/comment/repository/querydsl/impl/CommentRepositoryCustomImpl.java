@@ -8,7 +8,6 @@ import com.toyproject.board.api.dto.comment.CommentDto;
 import com.toyproject.board.api.dto.upload.UploadsShowDto;
 import com.toyproject.board.api.enums.UploadType;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +18,7 @@ import java.util.stream.Collectors;
 import static com.toyproject.board.api.domain.comment.entity.QComment.comment;
 import static com.toyproject.board.api.domain.upload.entity.QUploads.uploads;
 
-@Slf4j
+
 @RequiredArgsConstructor
 public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
 
@@ -77,10 +76,14 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
                 .where(comment.post.idx.eq(postIdx)
                                 .and(comment.isDeleted.eq(false)))
                 .fetchOne();
-        log.info("totalCount : {}", totalCount);
-        return new PageImpl<>(treeResult, pageable, totalCount != null ? totalCount : 0L);
-    }
 
+        return new PageImpl<>(treeResult, pageable, totalCount != null ? totalCount : 0L) {
+            @Override
+            public long getTotalElements() {
+                return totalCount != null ? totalCount : 0L;
+            }
+        };
+    }
     private List<CommentDto> convertToTree(List<Comment> allComments, Map<Long, List<UploadsShowDto>> uploadsMap) {
         List<CommentDto> result = new ArrayList<>();
         Map<Long, CommentDto> map = new HashMap<>();
