@@ -1,4 +1,4 @@
-# 🚀 Spring Boot 기반 커뮤니티 게시판 서비스 (Backend API)
+# Spring Boot 기반 커뮤니티 게시판 서비스 (Backend API)
 
 > **확장성과 보안을 고려한 현대적인 커뮤니티 백엔드 시스템**
 >
@@ -6,7 +6,7 @@
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 ### Backend
 - **Framework:** Spring Boot 3.5.9
@@ -46,15 +46,15 @@
 
 ---
 
-## 🏗 Architecture Diagram
+## Architecture Diagram
 ![Project Architecture](./docs/images/toyproject-board-architecture.png)
 
 ---
 
-## 📊 Database ERD
+## Database ERD
 ![Project ERD](./docs/images/toyproject-board-erd.png)
 
-[👉 ERDCloud에서 자세히 보기](https://www.erdcloud.com/d/cKkYMpKqHmGizHDKR)
+[ERDCloud에서 자세히 보기](https://www.erdcloud.com/d/cKkYMpKqHmGizHDKR)
 ---
 
 ## 📖 API Documentation
