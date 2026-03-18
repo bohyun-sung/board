@@ -7,6 +7,7 @@ import com.toyproject.board.api.domain.upload.entity.Uploads;
 import com.toyproject.board.api.dto.comment.CommentDto;
 import com.toyproject.board.api.dto.upload.UploadsShowDto;
 import com.toyproject.board.api.enums.UploadType;
+import com.toyproject.board.api.utill.CustomPageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -77,13 +78,9 @@ public class CommentRepositoryCustomImpl implements CommentRepositoryCustom {
                                 .and(comment.isDeleted.eq(false)))
                 .fetchOne();
 
-        return new PageImpl<>(treeResult, pageable, totalCount != null ? totalCount : 0L) {
-            @Override
-            public long getTotalElements() {
-                return totalCount != null ? totalCount : 0L;
-            }
-        };
+        return new CustomPageResponse<>(treeResult, pageable, totalCount != null ? totalCount : 0L);
     }
+
     private List<CommentDto> convertToTree(List<Comment> allComments, Map<Long, List<UploadsShowDto>> uploadsMap) {
         List<CommentDto> result = new ArrayList<>();
         Map<Long, CommentDto> map = new HashMap<>();
